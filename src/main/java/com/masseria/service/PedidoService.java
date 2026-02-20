@@ -307,6 +307,35 @@ public class PedidoService {
             .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
     
+    public List<Pedido> obtenerHistorialPorUsuario(Long usuarioId, String periodo,
+            LocalDate fechaInicioParam, LocalDate fechaFinParam, String nombreProducto) {
+        if (usuarioId == null) return Collections.emptyList();
+
+        LocalDateTime inicio = null;
+        LocalDateTime fin = null;
+
+        // Rango de fechas personalizado tiene prioridad sobre el periodo
+        if (fechaInicioParam != null || fechaFinParam != null) {
+            inicio = fechaInicioParam != null ? fechaInicioParam.atStartOfDay() : null;
+            fin = fechaFinParam != null ? fechaFinParam.atTime(LocalTime.MAX) : null;
+        } else if (periodo != null && !periodo.isEmpty()) {
+            fin = LocalDateTime.now();
+            switch (periodo) {
+                case "hoy"    -> inicio = LocalDate.now().atStartOfDay();
+                case "7dias"  -> inicio = LocalDate.now().minusDays(7).atStartOfDay();
+                case "15dias" -> inicio = LocalDate.now().minusDays(15).atStartOfDay();
+                case "1mes"   -> inicio = LocalDate.now().minusMonths(1).atStartOfDay();
+                case "3meses" -> inicio = LocalDate.now().minusMonths(3).atStartOfDay();
+                default       -> { inicio = null; fin = null; } // "todos"
+            }
+        }
+
+        String filtroProducto = (nombreProducto != null && !nombreProducto.trim().isEmpty())
+                ? nombreProducto.trim() : null;
+
+        return pedidoRepository.findHistorialUsuario(usuarioId, inicio, fin, filtroProducto);
+    }
+
     public List<Pedido> buscarPedidos(String estado, String tipoEntrega, LocalDate fecha) {
         return pedidoRepository.findAll().stream()
             .filter(p -> estado == null || estado.isEmpty() || estado.equals(p.getEstado()))

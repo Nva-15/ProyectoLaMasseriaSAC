@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -76,45 +77,136 @@ public class HomeController {
     }
 
     // ========== PÁGINAS PROTEGIDAS ==========
-    
+
     @GetMapping("/reservaciones")
-    public String reservaciones(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+    public String reservaciones(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+            @RequestParam(required = false) String periodo,
+            @RequestParam(required = false) String fechaInicio,
+            @RequestParam(required = false) String fechaFin,
+            @RequestParam(required = false) String estado) {
+
         Usuario usuario = (Usuario) session.getAttribute("usuario");
-        
+
         if (usuario == null) {
             redirectAttributes.addFlashAttribute("error", "Debes iniciar sesión para hacer una reservación");
             return "redirect:/login?acceso=denegado";
         }
-        
+
         model.addAttribute("usuario", usuario);
         model.addAttribute("nombreUsuario", usuario.getNombres() + " " + usuario.getApellidos());
         model.addAttribute("emailUsuario", usuario.getEmail());
         model.addAttribute("telefonoUsuario", usuario.getTelefono() != null ? usuario.getTelefono() : "");
         model.addAttribute("fechaMinima", LocalDate.now().toString());
-        
+
         List<String> horarios = List.of(
-            "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", 
+            "09:00", "10:00", "11:00", "12:00", "13:00", "14:00",
             "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00"
         );
         model.addAttribute("horarios", horarios);
         model.addAttribute("activePage", "reservaciones");
+
+        // ===== HISTORIAL CON FILTROS =====
+        boolean tieneFechas = (fechaInicio != null && !fechaInicio.isEmpty())
+                           || (fechaFin    != null && !fechaFin.isEmpty());
+        boolean tieneEstado = (estado != null && !estado.isEmpty());
+
+        String periodoActivo;
+        if (tieneFechas || tieneEstado) {
+            periodoActivo = "todas";
+        } else {
+            periodoActivo = (periodo != null && !periodo.isEmpty()) ? periodo : "proximas";
+        }
+
+        LocalDate fechaInicioDate = null;
+        LocalDate fechaFinDate    = null;
+        if (fechaInicio != null && !fechaInicio.isEmpty()) fechaInicioDate = LocalDate.parse(fechaInicio);
+        if (fechaFin    != null && !fechaFin.isEmpty())    fechaFinDate    = LocalDate.parse(fechaFin);
+
+        model.addAttribute("historialReservaciones",
+                reservacionService.obtenerHistorialPorUsuario(
+                        usuario.getId(), periodoActivo, fechaInicioDate, fechaFinDate, estado));
+        model.addAttribute("periodoActivo", periodoActivo);
+        model.addAttribute("fechaInicio",   fechaInicio != null ? fechaInicio : "");
+        model.addAttribute("fechaFin",      fechaFin    != null ? fechaFin    : "");
+        model.addAttribute("estadoFiltro",  estado      != null ? estado      : "");
+
         return "reservacion";
     }
 
-    @GetMapping("/pedidos")
-    public String pedidos(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+    @PostMapping("/reservaciones/{id}/cancelar")
+    public String cancelarMiReservacion(@PathVariable Long id,
+            HttpSession session, RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
-        
+        if (usuario == null) return "redirect:/login";
+
+        try {
+            reservacionService.obtenerPorId(id).ifPresent(res -> {
+                if (res.getUsuario() != null
+                        && res.getUsuario().getId().equals(usuario.getId())
+                        && "PENDIENTE".equals(res.getEstado())) {
+                    reservacionService.cancelarReservacion(id);
+                }
+            });
+            redirectAttributes.addFlashAttribute("mensaje", "Reservación cancelada exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "No se pudo cancelar la reservación");
+        }
+        return "redirect:/reservaciones?tab=historial";
+    }
+
+    @GetMapping("/pedidos")
+    public String pedidos(
+            HttpSession session,
+            Model model,
+            @RequestParam(required = false) String periodo,
+            @RequestParam(required = false) String fechaInicio,
+            @RequestParam(required = false) String fechaFin,
+            @RequestParam(required = false) String nombreProducto,
+            RedirectAttributes redirectAttributes) {
+
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+
         if (usuario == null) {
             redirectAttributes.addFlashAttribute("error", "Debes iniciar sesión para hacer un pedido");
             return "redirect:/login?acceso=denegado";
         }
-        
+
         model.addAttribute("usuario", usuario);
         model.addAttribute("nombreCompleto", usuario.getNombres() + " " + usuario.getApellidos());
         model.addAttribute("email", usuario.getEmail());
         model.addAttribute("telefono", usuario.getTelefono() != null ? usuario.getTelefono() : "");
         model.addAttribute("direccion", usuario.getDireccion() != null ? usuario.getDireccion() : "");
+
+        // Historial de pedidos del usuario con filtros
+        boolean tieneFechas   = (fechaInicio != null && !fechaInicio.isEmpty())
+                             || (fechaFin    != null && !fechaFin.isEmpty());
+        boolean tieneProducto = (nombreProducto != null && !nombreProducto.isEmpty());
+
+        // Si el usuario usa rango de fechas o busca por producto,
+        // forzar "todos" para no limitar el período automáticamente.
+        String periodoActivo;
+        if (tieneFechas || tieneProducto) {
+            periodoActivo = "todos";
+        } else {
+            periodoActivo = (periodo != null && !periodo.isEmpty()) ? periodo : "hoy";
+        }
+
+        LocalDate fechaInicioDate = null;
+        LocalDate fechaFinDate = null;
+        if (fechaInicio != null && !fechaInicio.isEmpty()) {
+            fechaInicioDate = LocalDate.parse(fechaInicio);
+        }
+        if (fechaFin != null && !fechaFin.isEmpty()) {
+            fechaFinDate = LocalDate.parse(fechaFin);
+        }
+        List<Pedido> historialPedidos = pedidoService.obtenerHistorialPorUsuario(
+                usuario.getId(), periodoActivo, fechaInicioDate, fechaFinDate, nombreProducto);
+
+        model.addAttribute("historialPedidos", historialPedidos);
+        model.addAttribute("periodoActivo", periodoActivo);
+        model.addAttribute("fechaInicio", fechaInicio != null ? fechaInicio : "");
+        model.addAttribute("fechaFin", fechaFin != null ? fechaFin : "");
+        model.addAttribute("nombreProducto", nombreProducto != null ? nombreProducto : "");
         model.addAttribute("activePage", "pedidos");
         return "pedidos";
     }

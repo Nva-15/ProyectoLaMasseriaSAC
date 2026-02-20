@@ -11,6 +11,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,12 +97,59 @@ public class AdminController {
     // ==================== PEDIDOS ====================
 
     @GetMapping("/pedidos")
-    public String listarPedidos(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+    public String listarPedidos(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+            @RequestParam(required = false) String periodo,
+            @RequestParam(required = false) String fechaInicio,
+            @RequestParam(required = false) String fechaFin,
+            @RequestParam(required = false) String clienteNombre,
+            @RequestParam(required = false) String estado) {
         String redirect = verificarAdmin(session, redirectAttributes);
         if (redirect != null) return redirect;
 
-        model.addAttribute("activePage", "admin-pedidos");
-        model.addAttribute("pedidos", pedidoService.obtenerTodos());
+        boolean tieneFechas = (fechaInicio != null && !fechaInicio.isEmpty())
+                           || (fechaFin    != null && !fechaFin.isEmpty());
+        String periodoActivo = tieneFechas ? "todos"
+                : (periodo != null && !periodo.isEmpty()) ? periodo : "hoy";
+
+        LocalDateTime inicio = null;
+        LocalDateTime fin    = null;
+        if (tieneFechas) {
+            if (fechaInicio != null && !fechaInicio.isEmpty())
+                inicio = LocalDate.parse(fechaInicio).atStartOfDay();
+            if (fechaFin != null && !fechaFin.isEmpty())
+                fin = LocalDate.parse(fechaFin).atTime(LocalTime.MAX);
+        } else {
+            fin = LocalDateTime.now();
+            switch (periodoActivo) {
+                case "hoy"   -> inicio = LocalDate.now().atStartOfDay();
+                case "7dias" -> inicio = LocalDate.now().minusDays(7).atStartOfDay();
+                case "1mes"  -> inicio = LocalDate.now().minusMonths(1).atStartOfDay();
+                default      -> { inicio = null; fin = null; }
+            }
+        }
+
+        final LocalDateTime fInicio  = inicio;
+        final LocalDateTime fFin     = fin;
+        final String        fEstado  = (estado        != null && !estado.isEmpty())        ? estado        : null;
+        final String        fCliente = (clienteNombre != null && !clienteNombre.isEmpty()) ? clienteNombre.toLowerCase() : null;
+
+        List<Pedido> pedidos = pedidoService.obtenerTodos().stream()
+                .filter(p -> fInicio  == null || (p.getFechaPedido() != null && !p.getFechaPedido().isBefore(fInicio)))
+                .filter(p -> fFin     == null || (p.getFechaPedido() != null && !p.getFechaPedido().isAfter(fFin)))
+                .filter(p -> fEstado  == null || fEstado.equals(p.getEstado()))
+                .filter(p -> fCliente == null || (p.getClienteNombre() != null
+                                                  && p.getClienteNombre().toLowerCase().contains(fCliente)))
+                .sorted(Comparator.comparing(Pedido::getFechaPedido,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
+
+        model.addAttribute("activePage",    "admin-pedidos");
+        model.addAttribute("pedidos",       pedidos);
+        model.addAttribute("periodoActivo", periodoActivo);
+        model.addAttribute("fechaInicio",   fechaInicio   != null ? fechaInicio   : "");
+        model.addAttribute("fechaFin",      fechaFin      != null ? fechaFin      : "");
+        model.addAttribute("clienteNombre", clienteNombre != null ? clienteNombre : "");
+        model.addAttribute("estadoFiltro",  estado        != null ? estado        : "");
         return "admin/pedidos";
     }
 
@@ -138,12 +188,49 @@ public class AdminController {
     // ==================== RESERVACIONES ====================
 
     @GetMapping("/reservaciones")
-    public String listarReservaciones(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+    public String listarReservaciones(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+            @RequestParam(required = false) String fechaInicio,
+            @RequestParam(required = false) String fechaFin,
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) String clienteNombre) {
         String redirect = verificarAdmin(session, redirectAttributes);
         if (redirect != null) return redirect;
 
-        model.addAttribute("activePage", "admin-reservaciones");
-        model.addAttribute("reservaciones", reservacionService.obtenerTodas());
+        boolean tieneFiltros = (fechaInicio   != null && !fechaInicio.isEmpty())
+                            || (fechaFin      != null && !fechaFin.isEmpty())
+                            || (estado        != null && !estado.isEmpty())
+                            || (clienteNombre != null && !clienteNombre.isEmpty());
+
+        LocalDate inicioDate = null;
+        LocalDate finDate    = null;
+        if (fechaInicio != null && !fechaInicio.isEmpty()) inicioDate = LocalDate.parse(fechaInicio);
+        if (fechaFin    != null && !fechaFin.isEmpty())    finDate    = LocalDate.parse(fechaFin);
+        if (!tieneFiltros) inicioDate = LocalDate.now();   // default: hoy en adelante
+
+        final LocalDate fInicio  = inicioDate;
+        final LocalDate fFin     = finDate;
+        final String    fEstado  = (estado        != null && !estado.isEmpty())        ? estado        : null;
+        final String    fCliente = (clienteNombre != null && !clienteNombre.isEmpty()) ? clienteNombre.toLowerCase() : null;
+
+        List<Reservacion> reservaciones = reservacionService.obtenerTodas().stream()
+                .filter(r -> fInicio  == null || (r.getFecha() != null && !r.getFecha().isBefore(fInicio)))
+                .filter(r -> fFin     == null || (r.getFecha() != null && !r.getFecha().isAfter(fFin)))
+                .filter(r -> fEstado  == null || fEstado.equals(r.getEstado()))
+                .filter(r -> fCliente == null || (r.getNombre() != null
+                                                  && r.getNombre().toLowerCase().contains(fCliente)))
+                .sorted(Comparator.comparing(Reservacion::getFecha,
+                        Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(Reservacion::getHora,
+                        Comparator.nullsLast(Comparator.naturalOrder())))
+                .toList();
+
+        model.addAttribute("activePage",    "admin-reservaciones");
+        model.addAttribute("reservaciones", reservaciones);
+        model.addAttribute("fechaInicio",   fechaInicio   != null ? fechaInicio   : "");
+        model.addAttribute("fechaFin",      fechaFin      != null ? fechaFin      : "");
+        model.addAttribute("estadoFiltro",  estado        != null ? estado        : "");
+        model.addAttribute("clienteNombre", clienteNombre != null ? clienteNombre : "");
+        model.addAttribute("tieneFiltros",  tieneFiltros);
         return "admin/reservaciones";
     }
 
@@ -178,12 +265,28 @@ public class AdminController {
     // ==================== PRODUCTOS ====================
 
     @GetMapping("/productos")
-    public String listarProductos(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+    public String listarProductos(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+            @RequestParam(required = false) Long categoriaId,
+            @RequestParam(required = false) String activoFiltro,
+            @RequestParam(required = false) String destacadoFiltro) {
         String redirect = verificarAdmin(session, redirectAttributes);
         if (redirect != null) return redirect;
 
-        model.addAttribute("activePage", "admin-productos");
-        model.addAttribute("productos", productoService.obtenerTodosAdmin());
+        Boolean fActivo    = "true".equals(activoFiltro)    ? Boolean.TRUE  : "false".equals(activoFiltro)    ? Boolean.FALSE : null;
+        Boolean fDestacado = "true".equals(destacadoFiltro) ? Boolean.TRUE  : "false".equals(destacadoFiltro) ? Boolean.FALSE : null;
+
+        List<Producto> productos = productoService.obtenerTodosAdmin().stream()
+                .filter(p -> categoriaId == null || (p.getCategoria() != null && categoriaId.equals(p.getCategoria().getId())))
+                .filter(p -> fActivo     == null || fActivo.equals(p.getActivo()))
+                .filter(p -> fDestacado  == null || fDestacado.equals(p.getDestacado()))
+                .toList();
+
+        model.addAttribute("activePage",       "admin-productos");
+        model.addAttribute("productos",        productos);
+        model.addAttribute("categorias",       categoriaService.obtenerTodas());
+        model.addAttribute("categoriaFiltro",  categoriaId);
+        model.addAttribute("activoFiltro",     activoFiltro     != null ? activoFiltro     : "");
+        model.addAttribute("destacadoFiltro",  destacadoFiltro  != null ? destacadoFiltro  : "");
         return "admin/productos";
     }
 

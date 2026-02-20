@@ -36,7 +36,8 @@
             <div class="col-md-4 mb-3">
                 <div class="card border-0 shadow-sm" style="border-left: 4px solid #dc3545 !important;">
                     <div class="card-body d-flex align-items-center">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 45px; height: 45px; background: rgba(220,53,69,0.15);">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mr-3"
+                             style="width: 45px; height: 45px; background: rgba(220,53,69,0.15);">
                             <i class="fa fa-user-shield text-danger"></i>
                         </div>
                         <div>
@@ -49,7 +50,8 @@
             <div class="col-md-4 mb-3">
                 <div class="card border-0 shadow-sm" style="border-left: 4px solid #007bff !important;">
                     <div class="card-body d-flex align-items-center">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 45px; height: 45px; background: rgba(0,123,255,0.15);">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mr-3"
+                             style="width: 45px; height: 45px; background: rgba(0,123,255,0.15);">
                             <i class="fa fa-users text-primary"></i>
                         </div>
                         <div>
@@ -62,12 +64,68 @@
             <div class="col-md-4 mb-3">
                 <div class="card border-0 shadow-sm" style="border-left: 4px solid #28a745 !important;">
                     <div class="card-body d-flex align-items-center">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 45px; height: 45px; background: rgba(40,167,69,0.15);">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mr-3"
+                             style="width: 45px; height: 45px; background: rgba(40,167,69,0.15);">
                             <i class="fa fa-user-check text-success"></i>
                         </div>
                         <div>
                             <h6 class="text-muted mb-0" style="font-size: 0.75rem;">TOTAL</h6>
-                            <h3 class="mb-0 font-weight-bold" th:text="${#lists.size(admins) + #lists.size(clientes)}">0</h3>
+                            <h3 class="mb-0 font-weight-bold"
+                                th:text="${#lists.size(admins) + #lists.size(clientes)}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== FILTROS (client-side) ===== -->
+        <div class="row px-xl-5 mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light" style="border-left: 4px solid #6c757d;">
+                        <h6 class="mb-0 text-muted"><i class="fa fa-search mr-2"></i>Buscar y Filtrar Usuarios</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-5 mb-2">
+                                <label class="small text-muted mb-1">Buscar por nombre, email o DNI</label>
+                                <div class="input-group input-group-sm">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-search"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" id="buscarUsuario"
+                                           placeholder="Nombre completo, email o DNI..."
+                                           oninput="filtrarUsuarios()">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary btn-sm" type="button"
+                                                onclick="document.getElementById('buscarUsuario').value=''; filtrarUsuarios();">
+                                            <i class="fa fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-2">
+                                <label class="small text-muted mb-1">Estado de la cuenta</label>
+                                <div class="btn-group btn-group-sm d-block" role="group">
+                                    <button type="button" class="btn btn-outline-secondary active"
+                                            id="btnTodos" onclick="setFiltroEstado('todos')">
+                                        <i class="fa fa-users mr-1"></i>Todos
+                                    </button>
+                                    <button type="button" class="btn btn-outline-success"
+                                            id="btnActivos" onclick="setFiltroEstado('activo')">
+                                        <i class="fa fa-user-check mr-1"></i>Activos
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger"
+                                            id="btnInactivos" onclick="setFiltroEstado('inactivo')">
+                                        <i class="fa fa-user-slash mr-1"></i>Inactivos
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-2 text-muted">
+                                <small><i class="fa fa-info-circle mr-1"></i>Mostrando:
+                                    <span id="contadorVisible">todos los usuarios</span>
+                                </small>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -75,17 +133,18 @@
         </div>
 
         <!-- ==================== TABLA ADMINISTRADORES ==================== -->
-        <div class="row px-xl-5 mb-4">
+        <div class="row px-xl-5 mb-4" id="seccionAdmins">
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header d-flex justify-content-between align-items-center text-white" style="background: #dc3545;">
                         <h5 class="mb-0"><i class="fa fa-user-shield mr-2"></i>Administradores</h5>
-                        <span class="badge badge-light" th:text="${#lists.size(admins)} + ' administradores'">0</span>
+                        <span class="badge badge-light" id="badgeAdmins"
+                              th:text="${#lists.size(admins)} + ' administradores'">0</span>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead style="background: #f8f9fa;">
+                            <table class="table table-hover mb-0" id="tablaAdmins">
+                                <thead class="thead-dark">
                                     <tr>
                                         <th class="px-3">#ID</th>
                                         <th>Nombre</th>
@@ -98,7 +157,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="usr : ${admins}" th:classappend="${!usr.activo ? 'table-secondary' : ''}">
+                                    <tr th:each="usr : ${admins}"
+                                        th:classappend="${!usr.activo ? 'table-secondary' : ''}"
+                                        th:attr="data-search=${usr.nombreCompleto + ' ' + usr.email + ' ' + (usr.dni ?: '')},data-activo=${usr.activo}">
                                         <td class="px-3 font-weight-bold" th:text="${usr.id}">1</td>
                                         <td>
                                             <i class="fa fa-user-shield text-danger mr-1"></i>
@@ -114,7 +175,6 @@
                                         <td th:text="${usr.ultimoAcceso != null ? #temporals.format(usr.ultimoAcceso, 'dd/MM/yyyy HH:mm') : 'Nunca'}">-</td>
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm">
-                                                <!-- Quitar rol Admin -->
                                                 <form th:action="@{'/admin/usuarios/' + ${usr.id} + '/rol'}" method="post" class="d-inline">
                                                     <input type="hidden" name="rol" value="CLIENTE">
                                                     <button type="submit" class="btn btn-sm btn-outline-primary" title="Cambiar a Cliente"
@@ -122,7 +182,6 @@
                                                         <i class="fa fa-user-minus mr-1"></i>Quitar Admin
                                                     </button>
                                                 </form>
-                                                <!-- Activar/Desactivar -->
                                                 <form th:action="@{'/admin/usuarios/' + ${usr.id} + '/estado'}" method="post" class="d-inline ml-1">
                                                     <input type="hidden" name="activo" th:value="${!usr.activo}">
                                                     <button type="submit" class="btn btn-sm"
@@ -148,17 +207,18 @@
         </div>
 
         <!-- ==================== TABLA CLIENTES ==================== -->
-        <div class="row px-xl-5 mb-4">
+        <div class="row px-xl-5 mb-4" id="seccionClientes">
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header d-flex justify-content-between align-items-center text-white" style="background: #007bff;">
                         <h5 class="mb-0"><i class="fa fa-users mr-2"></i>Clientes</h5>
-                        <span class="badge badge-light" th:text="${#lists.size(clientes)} + ' clientes'">0</span>
+                        <span class="badge badge-light" id="badgeClientes"
+                              th:text="${#lists.size(clientes)} + ' clientes'">0</span>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead style="background: #f8f9fa;">
+                            <table class="table table-hover mb-0" id="tablaClientes">
+                                <thead class="thead-dark">
                                     <tr>
                                         <th class="px-3">#ID</th>
                                         <th>Nombre</th>
@@ -173,7 +233,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="usr : ${clientes}" th:classappend="${!usr.activo ? 'table-secondary' : ''}">
+                                    <tr th:each="usr : ${clientes}"
+                                        th:classappend="${!usr.activo ? 'table-secondary' : ''}"
+                                        th:attr="data-search=${usr.nombreCompleto + ' ' + usr.email + ' ' + (usr.dni ?: '')},data-activo=${usr.activo}">
                                         <td class="px-3 font-weight-bold" th:text="${usr.id}">1</td>
                                         <td>
                                             <i class="fa fa-user text-primary mr-1"></i>
@@ -182,7 +244,8 @@
                                         <td th:text="${usr.email}">email@example.com</td>
                                         <td th:text="${usr.dni ?: '-'}">12345678</td>
                                         <td th:text="${usr.telefono ?: '-'}">000000</td>
-                                        <td th:text="${usr.direccion ?: '-'}" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Dirección</td>
+                                        <td th:text="${usr.direccion ?: '-'}"
+                                            style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Dirección</td>
                                         <td class="text-center">
                                             <span th:if="${usr.activo}" class="badge badge-success">Activo</span>
                                             <span th:if="${!usr.activo}" class="badge badge-danger">Inactivo</span>
@@ -191,7 +254,6 @@
                                         <td th:text="${usr.ultimoAcceso != null ? #temporals.format(usr.ultimoAcceso, 'dd/MM/yyyy HH:mm') : 'Nunca'}">-</td>
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm">
-                                                <!-- Hacer Admin -->
                                                 <form th:action="@{'/admin/usuarios/' + ${usr.id} + '/rol'}" method="post" class="d-inline">
                                                     <input type="hidden" name="rol" value="ADMIN">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Hacer Administrador"
@@ -199,7 +261,6 @@
                                                         <i class="fa fa-user-shield mr-1"></i>Hacer Admin
                                                     </button>
                                                 </form>
-                                                <!-- Activar/Desactivar -->
                                                 <form th:action="@{'/admin/usuarios/' + ${usr.id} + '/estado'}" method="post" class="d-inline ml-1">
                                                     <input type="hidden" name="activo" th:value="${!usr.activo}">
                                                     <button type="submit" class="btn btn-sm"
@@ -228,5 +289,53 @@
     <div th:replace="~{base :: footer}"></div>
     <div th:replace="~{base :: scripts}"></div>
     <div th:replace="~{base :: floating-buttons}"></div>
+
+    <script>
+        var filtroEstadoActual = 'todos';
+
+        function setFiltroEstado(estado) {
+            filtroEstadoActual = estado;
+            document.getElementById('btnTodos').classList.toggle('active',    estado === 'todos');
+            document.getElementById('btnActivos').classList.toggle('active',  estado === 'activo');
+            document.getElementById('btnInactivos').classList.toggle('active', estado === 'inactivo');
+            filtrarUsuarios();
+        }
+
+        function filtrarUsuarios() {
+            var q = (document.getElementById('buscarUsuario').value || '').toLowerCase().trim();
+            var totalVisible = 0;
+            var visiblesAdmins = 0;
+            var visiblesClientes = 0;
+
+            ['tablaAdmins', 'tablaClientes'].forEach(function(tablaId) {
+                var esAdmins = tablaId === 'tablaAdmins';
+                var rows = document.querySelectorAll('#' + tablaId + ' tbody tr[data-search]');
+                rows.forEach(function(row) {
+                    var texto  = (row.getAttribute('data-search') || '').toLowerCase();
+                    var activo = row.getAttribute('data-activo');
+
+                    var matchTexto  = q === '' || texto.includes(q);
+                    var matchEstado = filtroEstadoActual === 'todos'
+                                  || (filtroEstadoActual === 'activo'   && activo === 'true')
+                                  || (filtroEstadoActual === 'inactivo' && activo === 'false');
+
+                    var mostrar = matchTexto && matchEstado;
+                    row.style.display = mostrar ? '' : 'none';
+                    if (mostrar) {
+                        totalVisible++;
+                        if (esAdmins) visiblesAdmins++; else visiblesClientes++;
+                    }
+                });
+            });
+
+            // Actualizar badges
+            var badgeAdmins   = document.getElementById('badgeAdmins');
+            var badgeClientes = document.getElementById('badgeClientes');
+            var contador      = document.getElementById('contadorVisible');
+            if (badgeAdmins)   badgeAdmins.textContent   = visiblesAdmins   + ' administradores';
+            if (badgeClientes) badgeClientes.textContent = visiblesClientes + ' clientes';
+            if (contador)      contador.textContent      = totalVisible + ' usuario(s)';
+        }
+    </script>
 </body>
 </html>

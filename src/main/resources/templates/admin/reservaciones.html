@@ -30,17 +30,97 @@
             <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
         </div>
 
+        <!-- ===== FILTROS ===== -->
+        <div class="row px-xl-5 mb-3">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light" style="border-left: 4px solid #28a745;">
+                        <h6 class="mb-0 text-muted"><i class="fa fa-filter mr-2"></i>Filtros de Búsqueda</h6>
+                    </div>
+                    <div class="card-body pb-2">
+                        <form action="/admin/reservaciones" method="get">
+                            <div class="row align-items-end">
+                                <div class="col-md-3 mb-2">
+                                    <label class="small text-muted mb-1">Nombre del cliente</label>
+                                    <div class="input-group input-group-sm">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-user"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control" name="clienteNombre"
+                                               th:value="${clienteNombre}" placeholder="Buscar cliente...">
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mb-2">
+                                    <label class="small text-muted mb-1">Estado</label>
+                                    <select class="form-control form-control-sm" name="estado">
+                                        <option value="">Todos</option>
+                                        <option value="PENDIENTE"  th:selected="${estadoFiltro == 'PENDIENTE'}">⏳ Pendiente</option>
+                                        <option value="CONFIRMADA" th:selected="${estadoFiltro == 'CONFIRMADA'}">✅ Confirmada</option>
+                                        <option value="CANCELADA"  th:selected="${estadoFiltro == 'CANCELADA'}">❌ Cancelada</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 mb-2">
+                                    <label class="small text-muted mb-1">Fecha desde</label>
+                                    <input type="date" class="form-control form-control-sm" name="fechaInicio"
+                                           th:value="${fechaInicio}">
+                                </div>
+                                <div class="col-md-2 mb-2">
+                                    <label class="small text-muted mb-1">Fecha hasta</label>
+                                    <input type="date" class="form-control form-control-sm" name="fechaFin"
+                                           th:value="${fechaFin}">
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button type="submit" class="btn btn-sm btn-warning mr-2">
+                                        <i class="fa fa-search mr-1"></i>Filtrar
+                                    </button>
+                                    <a href="/admin/reservaciones" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fa fa-times mr-1"></i>Limpiar
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Acceso rápido por estado -->
+                        <div class="mt-2 pt-2 border-top">
+                            <small class="text-muted font-weight-bold mr-2">Acceso rápido:</small>
+                            <a th:href="@{/admin/reservaciones(estado='PENDIENTE')}"
+                               class="btn btn-xs btn-outline-warning mr-1"
+                               th:classappend="${estadoFiltro == 'PENDIENTE' && clienteNombre == '' ? ' active' : ''}">
+                                <i class="fa fa-clock mr-1"></i>Solo Pendientes
+                            </a>
+                            <a th:href="@{/admin/reservaciones(estado='CONFIRMADA')}"
+                               class="btn btn-xs btn-outline-success mr-1"
+                               th:classappend="${estadoFiltro == 'CONFIRMADA' && clienteNombre == '' ? ' active' : ''}">
+                                <i class="fa fa-check mr-1"></i>Solo Confirmadas
+                            </a>
+                            <a th:href="@{/admin/reservaciones}"
+                               class="btn btn-xs btn-outline-secondary"
+                               th:classappend="${!tieneFiltros ? ' active' : ''}">
+                                <i class="fa fa-calendar-day mr-1"></i>Próximas (hoy+)
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TABLA RESERVACIONES ===== -->
         <div class="row px-xl-5">
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
-                    <div class="card-header d-flex justify-content-between align-items-center text-white" style="background: #c49b63;">
-                        <h5 class="mb-0"><i class="fa fa-calendar-alt mr-2"></i>Todas las Reservaciones</h5>
-                        <span class="badge badge-light" th:text="${#lists.size(reservaciones)} + ' reservaciones'">0 reservaciones</span>
+                    <div class="card-header d-flex justify-content-between align-items-center text-white" style="background: #28a745;">
+                        <h5 class="mb-0">
+                            <i class="fa fa-calendar-alt mr-2"></i>
+                            <span th:text="${!tieneFiltros ? 'Reservaciones Próximas (hoy en adelante)' : 'Reservaciones — Resultados del Filtro'}">
+                                Reservaciones
+                            </span>
+                        </h5>
+                        <span class="badge badge-light" th:text="${#lists.size(reservaciones)} + ' reservacion(es)'">0</span>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0">
-                                <thead style="background: #f8f9fa;">
+                                <thead class="thead-dark">
                                     <tr>
                                         <th class="px-3">#ID</th>
                                         <th>Fecha</th>
@@ -54,30 +134,41 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="res : ${reservaciones}">
+                                    <tr th:each="res : ${reservaciones}"
+                                        th:classappend="${res.estado == 'CANCELADA' ? 'table-secondary' : ''}">
                                         <td class="px-3 font-weight-bold" th:text="${res.id}">1</td>
                                         <td th:text="${#temporals.format(res.fecha, 'dd/MM/yyyy')}">01/01/2026</td>
-                                        <td th:text="${#temporals.format(res.hora, 'HH:mm')}">12:00</td>
-                                        <td th:text="${res.nombre}">Cliente</td>
+                                        <td>
+                                            <span class="badge badge-secondary"
+                                                  th:text="${#temporals.format(res.hora, 'HH:mm')}">12:00</span>
+                                        </td>
+                                        <td>
+                                            <i class="fa fa-user text-muted mr-1"></i>
+                                            <span th:text="${res.nombre}">Cliente</span>
+                                        </td>
                                         <td th:text="${res.email}">email</td>
                                         <td th:text="${res.telefono}">000000</td>
                                         <td class="text-center">
-                                            <span class="badge badge-secondary" th:text="${res.cantidadPersonas}">2</span>
+                                            <span class="badge badge-info" th:text="${res.cantidadPersonas}">2</span>
                                         </td>
                                         <td>
                                             <span class="badge badge-pill px-2 py-1"
-                                                  th:classappend="${res.estado == 'PENDIENTE' ? 'badge-warning' :
+                                                  th:classappend="${res.estado == 'PENDIENTE'  ? 'badge-warning' :
                                                                     res.estado == 'CONFIRMADA' ? 'badge-success' : 'badge-danger'}"
                                                   th:text="${res.estado}">PENDIENTE</span>
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm">
-                                                <form th:if="${res.estado == 'PENDIENTE'}" th:action="@{'/admin/reservaciones/' + ${res.id} + '/confirmar'}" method="post" class="d-inline">
+                                                <form th:if="${res.estado == 'PENDIENTE'}"
+                                                      th:action="@{'/admin/reservaciones/' + ${res.id} + '/confirmar'}"
+                                                      method="post" class="d-inline">
                                                     <button type="submit" class="btn btn-success btn-sm" title="Confirmar">
-                                                        <i class="fa fa-check"></i>
+                                                        <i class="fa fa-check mr-1"></i>Confirmar
                                                     </button>
                                                 </form>
-                                                <form th:if="${res.estado != 'CANCELADA'}" th:action="@{'/admin/reservaciones/' + ${res.id} + '/cancelar'}" method="post" class="d-inline ml-1">
+                                                <form th:if="${res.estado != 'CANCELADA'}"
+                                                      th:action="@{'/admin/reservaciones/' + ${res.id} + '/cancelar'}"
+                                                      method="post" class="d-inline ml-1">
                                                     <button type="submit" class="btn btn-danger btn-sm" title="Cancelar">
                                                         <i class="fa fa-times"></i>
                                                     </button>
@@ -86,8 +177,13 @@
                                         </td>
                                     </tr>
                                     <tr th:if="${#lists.isEmpty(reservaciones)}">
-                                        <td colspan="9" class="text-center text-muted py-4">
-                                            <i class="fa fa-calendar-times fa-2x mb-2 d-block"></i>No hay reservaciones registradas
+                                        <td colspan="9" class="text-center text-muted py-5">
+                                            <i class="fa fa-calendar-times fa-3x mb-3 d-block"></i>
+                                            <span th:text="${!tieneFiltros
+                                                ? 'No hay reservaciones próximas'
+                                                : 'No se encontraron reservaciones con los filtros aplicados'}">
+                                                No hay reservaciones
+                                            </span>
                                         </td>
                                     </tr>
                                 </tbody>

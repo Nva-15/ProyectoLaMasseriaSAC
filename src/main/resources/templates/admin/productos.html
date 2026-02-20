@@ -30,19 +30,93 @@
             <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
         </div>
 
+        <!-- ===== FILTROS ===== -->
+        <div class="row px-xl-5 mb-3">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light d-flex justify-content-between align-items-center"
+                         style="border-left: 4px solid #c49b63;">
+                        <h6 class="mb-0 text-muted"><i class="fa fa-filter mr-2"></i>Filtros de Búsqueda</h6>
+                        <a href="/admin/productos/nuevo" class="btn btn-sm text-white" style="background: #c49b63;">
+                            <i class="fa fa-plus mr-1"></i>Nuevo Producto
+                        </a>
+                    </div>
+                    <div class="card-body pb-2">
+                        <!-- Búsqueda en tiempo real (client-side) -->
+                        <div class="mb-3">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-search"></i></span>
+                                </div>
+                                <input type="text" class="form-control" id="buscarProducto"
+                                       placeholder="Buscar por nombre del producto en tiempo real..."
+                                       oninput="filtrarProductos(this.value)">
+                                <div class="input-group-append">
+                                    <span class="input-group-text text-muted" id="contadorProductos">
+                                        [[${#lists.size(productos)}]] producto(s)
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Filtros server-side -->
+                        <form action="/admin/productos" method="get">
+                            <div class="row align-items-end">
+                                <div class="col-md-3 mb-2">
+                                    <label class="small text-muted mb-1">Categoría</label>
+                                    <select class="form-control form-control-sm" name="categoriaId">
+                                        <option value="">Todas las categorías</option>
+                                        <option th:each="cat : ${categorias}"
+                                                th:value="${cat.id}"
+                                                th:text="${cat.nombre}"
+                                                th:selected="${categoriaFiltro != null && categoriaFiltro == cat.id}">
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 mb-2">
+                                    <label class="small text-muted mb-1">Estado</label>
+                                    <select class="form-control form-control-sm" name="activoFiltro">
+                                        <option value="">Todos</option>
+                                        <option value="true"  th:selected="${activoFiltro == 'true'}">✅ Activos</option>
+                                        <option value="false" th:selected="${activoFiltro == 'false'}">🚫 Inactivos</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 mb-2">
+                                    <label class="small text-muted mb-1">Destacado</label>
+                                    <select class="form-control form-control-sm" name="destacadoFiltro">
+                                        <option value="">Todos</option>
+                                        <option value="true"  th:selected="${destacadoFiltro == 'true'}">⭐ Destacados</option>
+                                        <option value="false" th:selected="${destacadoFiltro == 'false'}">Sin destacar</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5 mb-2">
+                                    <button type="submit" class="btn btn-sm btn-warning mr-2">
+                                        <i class="fa fa-filter mr-1"></i>Aplicar Filtros
+                                    </button>
+                                    <a href="/admin/productos" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fa fa-times mr-1"></i>Limpiar
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TABLA PRODUCTOS ===== -->
         <div class="row px-xl-5">
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header d-flex justify-content-between align-items-center text-white" style="background: #c49b63;">
-                        <h5 class="mb-0"><i class="fa fa-coffee mr-2"></i>Todos los Productos</h5>
-                        <a href="/admin/productos/nuevo" class="btn btn-light btn-sm">
-                            <i class="fa fa-plus mr-1"></i>Nuevo Producto
-                        </a>
+                        <h5 class="mb-0"><i class="fa fa-coffee mr-2"></i>Productos</h5>
+                        <span class="badge badge-light" id="badgeProductos"
+                              th:text="${#lists.size(productos)} + ' producto(s)'">0</span>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead style="background: #f8f9fa;">
+                            <table class="table table-hover mb-0" id="tablaProductos">
+                                <thead class="thead-dark">
                                     <tr>
                                         <th class="px-3">#ID</th>
                                         <th>Imagen</th>
@@ -56,23 +130,33 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="producto : ${productos}" th:classappend="${!producto.activo ? 'table-secondary' : ''}">
+                                    <tr th:each="producto : ${productos}"
+                                        th:classappend="${!producto.activo ? 'table-secondary' : ''}"
+                                        th:attr="data-nombre=${producto.nombre}">
                                         <td class="px-3 font-weight-bold" th:text="${producto.id}">1</td>
                                         <td>
                                             <img th:if="${producto.imagenUrl != null}" th:src="${producto.imagenUrl}"
-                                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 2px solid #c49b63;">
-                                            <span th:if="${producto.imagenUrl == null}" class="text-muted"><i class="fa fa-image"></i></span>
+                                                 style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px; border: 2px solid #c49b63;">
+                                            <span th:if="${producto.imagenUrl == null}" class="text-muted">
+                                                <i class="fa fa-image fa-lg"></i>
+                                            </span>
                                         </td>
-                                        <td th:text="${producto.nombre}">Producto</td>
-                                        <td th:text="${producto.categoria != null ? producto.categoria.nombre : 'Sin categoría'}">Categoría</td>
-                                        <td class="font-weight-bold">S/ <span th:text="${#numbers.formatDecimal(producto.precio, 1, 2)}">0.00</span></td>
+                                        <td class="font-weight-bold" th:text="${producto.nombre}">Producto</td>
+                                        <td>
+                                            <span class="badge badge-secondary"
+                                                  th:text="${producto.categoria != null ? producto.categoria.nombre : 'Sin categoría'}">Categoría</span>
+                                        </td>
+                                        <td class="font-weight-bold text-success">
+                                            S/ <span th:text="${#numbers.formatDecimal(producto.precio, 1, 2)}">0.00</span>
+                                        </td>
                                         <td class="text-center">
-                                            <span class="badge" th:classappend="${producto.stock > 0 ? 'badge-success' : 'badge-danger'}"
+                                            <span class="badge"
+                                                  th:classappend="${producto.stock > 0 ? 'badge-success' : 'badge-danger'}"
                                                   th:text="${producto.stock}">0</span>
                                         </td>
                                         <td class="text-center">
-                                            <i th:if="${producto.destacado}" class="fa fa-star" style="color: #c49b63;"></i>
-                                            <i th:if="${!producto.destacado}" class="fa fa-star text-muted"></i>
+                                            <i th:if="${producto.destacado}" class="fa fa-star fa-lg" style="color: #c49b63;" title="Destacado"></i>
+                                            <i th:if="${!producto.destacado}" class="far fa-star fa-lg text-muted" title="No destacado"></i>
                                         </td>
                                         <td class="text-center">
                                             <span th:if="${producto.activo}" class="badge badge-success">Activo</span>
@@ -80,10 +164,13 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm">
-                                                <a th:href="@{'/admin/productos/' + ${producto.id} + '/editar'}" class="btn text-white" style="background: #c49b63;" title="Editar">
+                                                <a th:href="@{'/admin/productos/' + ${producto.id} + '/editar'}"
+                                                   class="btn text-white" style="background: #c49b63;" title="Editar">
                                                     <i class="fa fa-edit"></i>
                                                 </a>
-                                                <form th:if="${producto.activo}" th:action="@{'/admin/productos/' + ${producto.id} + '/eliminar'}" method="post" class="d-inline"
+                                                <form th:if="${producto.activo}"
+                                                      th:action="@{'/admin/productos/' + ${producto.id} + '/eliminar'}"
+                                                      method="post" class="d-inline"
                                                       onsubmit="return confirm('¿Desactivar este producto?');">
                                                     <button type="submit" class="btn btn-danger btn-sm" title="Desactivar">
                                                         <i class="fa fa-ban"></i>
@@ -92,9 +179,10 @@
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr th:if="${#lists.isEmpty(productos)}">
-                                        <td colspan="9" class="text-center text-muted py-4">
-                                            <i class="fa fa-coffee fa-2x mb-2 d-block"></i>No hay productos registrados
+                                    <tr th:if="${#lists.isEmpty(productos)}" id="filaVacia">
+                                        <td colspan="9" class="text-center text-muted py-5">
+                                            <i class="fa fa-coffee fa-3x mb-3 d-block"></i>
+                                            No se encontraron productos con los filtros aplicados
                                         </td>
                                     </tr>
                                 </tbody>
@@ -109,5 +197,23 @@
     <div th:replace="~{base :: footer}"></div>
     <div th:replace="~{base :: scripts}"></div>
     <div th:replace="~{base :: floating-buttons}"></div>
+
+    <script>
+        function filtrarProductos(q) {
+            q = q.toLowerCase().trim();
+            var rows = document.querySelectorAll('#tablaProductos tbody tr[data-nombre]');
+            var visibles = 0;
+            rows.forEach(function(row) {
+                var nombre = (row.getAttribute('data-nombre') || '').toLowerCase();
+                var mostrar = q === '' || nombre.includes(q);
+                row.style.display = mostrar ? '' : 'none';
+                if (mostrar) visibles++;
+            });
+            var badge = document.getElementById('badgeProductos');
+            var contador = document.getElementById('contadorProductos');
+            if (badge)   badge.textContent   = visibles + ' producto(s)';
+            if (contador) contador.textContent = visibles + ' producto(s)';
+        }
+    </script>
 </body>
 </html>

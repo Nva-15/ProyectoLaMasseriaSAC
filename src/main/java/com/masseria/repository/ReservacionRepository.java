@@ -25,4 +25,15 @@ public interface ReservacionRepository extends JpaRepository<Reservacion, Long> 
     
     @Query("SELECT r FROM Reservacion r WHERE r.fecha >= :fecha ORDER BY r.fecha ASC, r.hora ASC")
     List<Reservacion> findProximasReservaciones(@Param("fecha") LocalDate fecha);
+
+    @Query("SELECT r FROM Reservacion r WHERE r.usuario.id = :usuarioId " +
+           "AND (:fechaInicio IS NULL OR r.fecha >= :fechaInicio) " +
+           "AND (:fechaFin IS NULL OR r.fecha <= :fechaFin) " +
+           "AND (:estado IS NULL OR r.estado = :estado) " +
+           "ORDER BY r.fecha DESC, r.hora DESC")
+    List<Reservacion> findHistorialUsuario(
+            @Param("usuarioId") Long usuarioId,
+            @Param("fechaInicio") LocalDate fechaInicio,
+            @Param("fechaFin") LocalDate fechaFin,
+            @Param("estado") String estado);
 }

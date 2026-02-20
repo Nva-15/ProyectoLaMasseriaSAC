@@ -83,8 +83,33 @@ public class ReservacionService {
     
     public List<Reservacion> obtenerReservacionesDelDia(LocalDate fecha) {
         if (fecha == null) {
-            fecha = LocalDate.now(); 
+            fecha = LocalDate.now();
         }
         return reservacionRepository.findByFecha(fecha);
+    }
+
+    public List<Reservacion> obtenerHistorialPorUsuario(Long usuarioId, String periodo,
+            LocalDate fechaInicioParam, LocalDate fechaFinParam, String estado) {
+        if (usuarioId == null) return List.of();
+
+        LocalDate inicio = null;
+        LocalDate fin    = null;
+
+        if (fechaInicioParam != null || fechaFinParam != null) {
+            inicio = fechaInicioParam;
+            fin    = fechaFinParam;
+        } else if (periodo != null) {
+            switch (periodo) {
+                case "proximas" -> inicio = LocalDate.now();
+                case "pasadas"  -> fin    = LocalDate.now().minusDays(1);
+                case "hoy"      -> { inicio = LocalDate.now(); fin = LocalDate.now(); }
+                default         -> { }   // "todas" — sin restricción de fecha
+            }
+        } else {
+            inicio = LocalDate.now();   // por defecto: próximas
+        }
+
+        String filtroEstado = (estado != null && !estado.isEmpty()) ? estado : null;
+        return reservacionRepository.findHistorialUsuario(usuarioId, inicio, fin, filtroEstado);
     }
 }

@@ -69,4 +69,16 @@ public interface PedidoRepository extends JpaRepository<Pedido, Long> {
     
     @Query("SELECT p FROM Pedido p WHERE p.clienteEmail = :email")
     List<Pedido> findByClienteEmail(@Param("email") String email);
+
+    @Query("SELECT DISTINCT p FROM Pedido p LEFT JOIN p.detalles d WHERE " +
+           "p.usuario.id = :usuarioId AND " +
+           "(:fechaInicio IS NULL OR p.fechaPedido >= :fechaInicio) AND " +
+           "(:fechaFin IS NULL OR p.fechaPedido <= :fechaFin) AND " +
+           "(:nombreProducto IS NULL OR LOWER(d.producto.nombre) LIKE LOWER(CONCAT('%', :nombreProducto, '%'))) " +
+           "ORDER BY p.fechaPedido DESC")
+    List<Pedido> findHistorialUsuario(
+            @Param("usuarioId") Long usuarioId,
+            @Param("fechaInicio") LocalDateTime fechaInicio,
+            @Param("fechaFin") LocalDateTime fechaFin,
+            @Param("nombreProducto") String nombreProducto);
 }

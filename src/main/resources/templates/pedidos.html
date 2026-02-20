@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>La Masseria - Pedidos</title>
-    
     <style>
         .floating-cart-btn {
             position: fixed;
@@ -27,7 +26,6 @@
             border: 3px solid white;
             cursor: pointer;
         }
-        
         .floating-cart-btn .cart-count {
             position: absolute;
             top: -5px;
@@ -44,30 +42,15 @@
             font-weight: bold;
             border: 2px solid white;
         }
-        
-        /* Estilos para datos del usuario */
-        .user-info {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 30px;
-            border-left: 5px solid #c49b63;
-        }
-        
-        .user-info i {
-            color: #c49b63;
-            margin-right: 10px;
-        }
     </style>
 </head>
 <body>
-    <!-- Navbar (usando fragmento de base.html) -->
     <div th:replace="~{base :: navbar}"></div>
 
     <!-- Page Header -->
     <div class="container-fluid page-header mb-5 position-relative overlay-bottom">
-        <div class="d-flex flex-column align-items-center justify-content-center pt-0 pt-lg-5" style="min-height: 400px">
-            <h1 class="display-4 mb-3 mt-0 mt-lg-5 text-white text-uppercase">Realiza tu Pedido</h1>
+        <div class="d-flex flex-column align-items-center justify-content-center pt-0 pt-lg-5" style="min-height: 300px">
+            <h1 class="display-4 mb-3 mt-0 mt-lg-5 text-white text-uppercase">Mis Pedidos</h1>
             <div class="d-inline-flex mb-lg-5">
                 <p class="m-0 text-white"><a class="text-white" href="/">Inicio</a></p>
                 <p class="m-0 text-white px-2">/</p>
@@ -76,450 +59,705 @@
         </div>
     </div>
 
-    <!-- Botón flotante del carrito (consistente con otras páginas) -->
-    <div class="floating-cart-btn" id="floating-cart-btn" onclick="window.location.href='/pedidos'">
+    <!-- Botón flotante del carrito -->
+    <div class="floating-cart-btn" id="floating-cart-btn" onclick="activarTabCarrito()">
         <i class="fas fa-shopping-cart"></i>
         <span class="cart-count" id="floating-cart-count">0</span>
     </div>
 
-    <!-- Sección de Pedidos -->
-    <div class="container-fluid py-5">
+    <!-- ====== CONTENIDO PRINCIPAL CON TABS ====== -->
+    <div class="container-fluid py-4 bg-light">
         <div class="container">
-            <div class="section-title text-center">
-                <h4 class="text-primary text-uppercase" style="letter-spacing: 5px;">Pedidos Online</h4>
-                <h1 class="display-4">Realiza tus pedidos con facilidad</h1>
+
+            <!-- Bienvenida breve -->
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <div>
+                    <h5 class="mb-0 font-weight-bold">
+                        <i class="fa fa-user-circle text-secondary mr-2"></i>
+                        Hola, <span th:text="${usuario.nombres}">Usuario</span>
+                    </h5>
+                    <small class="text-muted">Gestiona tu carrito y revisa tu historial de pedidos.</small>
+                </div>
+                <a href="/menu/desayunos" class="btn btn-sm btn-outline-warning">
+                    <i class="fa fa-utensils mr-1"></i>Ver Menú
+                </a>
             </div>
 
-            <!-- Mensaje de carrito vacío -->
-            <div id="empty-cart" style="text-align: center; padding: 50px; background: #f8f9fa; border-radius: 12px; margin: 30px 0; display: none;">
-                <i class="fas fa-shopping-cart" style="font-size: 5rem; color: #c49b63; margin-bottom: 20px;"></i>
-                <h3 style="color: #333; margin-bottom: 15px;">Tu carrito está vacío</h3>
-                <p style="color: #666; margin-bottom: 25px;">Agrega algunos productos deliciosos para comenzar tu pedido.</p>
-                <a href="/menu/desayunos" style="background: transparent; color: #c49b63; border: 2px solid #c49b63; border-radius: 30px; padding: 10px 30px; font-weight: 600; text-decoration: none; display: inline-block;">Ver Menú</a>
-            </div>
-
-            <!-- Carrito -->
-            <div id="carrito-container">
-                <div class="table-responsive">
-                    <table style="width: 100%; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.08); border-collapse: collapse;">
-                        <thead style="background: #c49b63; color: white;">
-                            <tr>
-                                <th style="padding: 15px; text-align: left; font-weight: 600;">Producto</th>
-                                <th style="padding: 15px; text-align: left; font-weight: 600;">Imagen</th>
-                                <th style="padding: 15px; text-align: left; font-weight: 600;">Precio</th>
-                                <th style="padding: 15px; text-align: left; font-weight: 600;">Cantidad</th>
-                                <th style="padding: 15px; text-align: left; font-weight: 600;">Total</th>
-                                <th style="padding: 15px; text-align: left; font-weight: 600;">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="items-carrito"></tbody>
-                        <tfoot>
-                            <tr style="background: #f8f9fa;">
-                                <td colspan="4" style="padding: 15px; text-align: right;"><strong>Total a pagar:</strong></td>
-                                <td colspan="2" style="padding: 15px;"><strong id="total-carrito">S/ 0.00</strong></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-
-                <!-- Método de Entrega -->
-                <div style="background: white; border-radius: 12px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); margin-top: 30px;">
-                    <h4 style="color: #333; margin-bottom: 20px; font-weight: 600;">¿Cómo deseas recibir tu pedido?</h4>
-                    <div style="display: inline-block; margin-right: 30px;">
-                        <input type="radio" name="metodoEntrega" id="recoger" value="RECOGER" checked style="margin-right: 8px;">
-                        <label for="recoger" style="cursor: pointer;">Ir a recoger</label>
-                    </div>
-                    <div style="display: inline-block;">
-                        <input type="radio" name="metodoEntrega" id="domicilio" value="DOMICILIO" style="margin-right: 8px;">
-                        <label for="domicilio" style="cursor: pointer;">Envío a domicilio</label>
-                    </div>
-                    
-                    <!-- Campo de dirección (solo si elige envío) -->
-                    <div id="campo-direccion" style="margin-top: 20px; display: none;">
-                        <input type="text" style="width: 100%; border: 2px solid #e0d6cc; border-radius: 8px; padding: 12px 15px;" 
-                               id="direccion" placeholder="Ingresa tu dirección completa"
-                               th:value="${direccion}">
-                    </div>
-                </div>
-
-                <!-- Botones de acción -->
-                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
-                    <button id="btn-confirmar" style="background: #28a745; color: white; border: none; border-radius: 30px; padding: 12px 30px; font-weight: 600; cursor: pointer; font-size: 1rem;">
-                        <i class="fas fa-check mr-2"></i>Confirmar Pedido
-                    </button>
-                    <a href="/menu/desayunos" style="background: transparent; color: #c49b63; border: 2px solid #c49b63; border-radius: 30px; padding: 10px 30px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center;">
-                        <i class="fas fa-plus mr-2"></i>Seguir comprando
+            <!-- ===== NAV TABS ===== -->
+            <ul class="nav nav-tabs" id="pedidosTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link font-weight-bold" id="link-tab-carrito"
+                       data-toggle="tab" href="#tab-carrito" role="tab">
+                        <i class="fa fa-shopping-cart mr-2"></i>Mi Carrito
+                        <span class="badge badge-pill badge-warning ml-1" id="badge-carrito">0</span>
                     </a>
-                </div>
-            </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link font-weight-bold" id="link-tab-historial"
+                       data-toggle="tab" href="#tab-historial" role="tab">
+                        <i class="fa fa-history mr-2"></i>Mis Pedidos
+                        <span class="badge badge-pill badge-secondary ml-1"
+                              th:text="${historialPedidos != null ? #lists.size(historialPedidos) : 0}">0</span>
+                    </a>
+                </li>
+            </ul>
 
-            <!-- Formulario de Pago (con datos pre-llenados) -->
-            <div id="formulario-pago" style="background: white; border-radius: 12px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); margin-top: 30px; display: none;">
-                <h4 style="color: #333; margin-bottom: 20px; font-weight: 600;">Confirma tus datos para finalizar</h4>
-                
-                <!-- Formulario que envía al backend -->
-                <form id="form-pedido" method="POST" th:action="@{/pedidos/guardar}">
-                    <!-- Datos pre-llenados del usuario (ocultos) -->
-                    <input type="hidden" name="cliente" th:value="${nombreCompleto}" id="cliente-hidden">
-                    <input type="hidden" name="correo" th:value="${email}" id="correo-hidden">
-                    
-                    <!-- Campos visibles (pueden editarse) -->
-                    <div style="margin-bottom: 15px;">
-                        <label for="nombre" style="font-weight: 500; color: #555; display: block; margin-bottom: 5px;"><i class="fas fa-user" style="color: #c49b63; margin-right: 8px;"></i>Nombre completo</label>
-                        <input type="text" style="width: 100%; border: 2px solid #e0d6cc; border-radius: 8px; padding: 10px  15px;" 
-                               id="nombre" name="nombre" th:value="${nombreCompleto}" required>
-                    </div>
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label for="correo" style="font-weight: 500; color: #555; display: block; margin-bottom: 5px;"><i class="fas fa-envelope" style="color: #c49b63; margin-right: 8px;"></i>Correo electrónico</label>
-                        <input type="email" style="width: 100%; border: 2px solid #e0d6cc; border-radius: 8px; padding: 10px 15px;" 
-                               id="correo" name="correo" th:value="${email}" required>
-                    </div>
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label for="telefono" style="font-weight: 500; color: #555; display: block; margin-bottom: 5px;"><i class="fas fa-phone" style="color: #c49b63; margin-right: 8px;"></i>Teléfono</label>
-                        <input type="tel" style="width: 100%; border: 2px solid #e0d6cc; border-radius: 8px; padding: 10px 15px;" 
-                               id="telefono" name="telefono" th:value="${telefono}" required>
-                    </div>
+            <!-- ===== TAB CONTENT ===== -->
+            <div class="tab-content bg-white shadow-sm rounded-bottom" id="pedidosTabContent">
 
-                    <div style="margin-bottom: 15px;">
-                        <label for="nota" style="font-weight: 500; color: #555; display: block; margin-bottom: 5px;"><i class="fas fa-sticky-note" style="color: #c49b63; margin-right: 8px;"></i>Nota</label>
-                        <input type="text" style="width: 100%; border: 2px solid #e0d6cc; border-radius: 8px; padding: 10px 15px;" 
-                               id="notas" name="notas" placeholder="Escribe una nota para tu pedido (opcional)">
+                <!-- ==================== TAB 1: CARRITO ==================== -->
+                <div class="tab-pane fade" id="tab-carrito" role="tabpanel">
+                    <div class="p-4">
+
+                        <!-- Carrito vacío -->
+                        <div id="empty-cart" class="text-center py-5" style="display:none;">
+                            <i class="fas fa-shopping-cart fa-4x text-warning mb-3"></i>
+                            <h4 class="text-muted mb-2">Tu carrito está vacío</h4>
+                            <p class="text-muted mb-4">Agrega productos deliciosos para comenzar tu pedido.</p>
+                            <a href="/menu/desayunos" class="btn btn-outline-warning btn-lg rounded-pill px-4">
+                                <i class="fa fa-utensils mr-2"></i>Ver Menú
+                            </a>
+                        </div>
+
+                        <!-- Tabla del carrito -->
+                        <div id="carrito-container" style="display:none;">
+                            <div class="table-responsive rounded shadow-sm">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Imagen</th>
+                                            <th>Precio</th>
+                                            <th>Cantidad</th>
+                                            <th>Total</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="items-carrito"></tbody>
+                                    <tfoot class="bg-light">
+                                        <tr>
+                                            <td colspan="4" class="text-right font-weight-bold py-3">Total a pagar:</td>
+                                            <td colspan="2" class="font-weight-bold py-3 text-success">
+                                                <strong id="total-carrito">S/ 0.00</strong>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <!-- Método de entrega -->
+                            <div class="card mt-4 border-left border-warning" style="border-left-width:4px !important;">
+                                <div class="card-body">
+                                    <h6 class="font-weight-bold mb-3">
+                                        <i class="fa fa-truck mr-2 text-warning"></i>¿Cómo deseas recibir tu pedido?
+                                    </h6>
+                                    <div class="d-flex flex-wrap" style="gap:20px;">
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" class="custom-control-input" name="metodoEntrega" id="recoger" value="RECOGER" checked>
+                                            <label class="custom-control-label" for="recoger">
+                                                <i class="fa fa-store mr-1 text-warning"></i>Ir a recoger
+                                            </label>
+                                        </div>
+                                        <div class="custom-control custom-radio">
+                                            <input type="radio" class="custom-control-input" name="metodoEntrega" id="domicilio" value="DOMICILIO">
+                                            <label class="custom-control-label" for="domicilio">
+                                                <i class="fa fa-truck mr-1 text-info"></i>Envío a domicilio
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div id="campo-direccion" class="mt-3" style="display:none;">
+                                        <input type="text" class="form-control"
+                                               id="direccion" placeholder="Ingresa tu dirección completa"
+                                               th:value="${direccion}">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Botones de acción -->
+                            <div class="d-flex flex-wrap justify-content-center mt-4" style="gap:12px;">
+                                <button id="btn-confirmar" class="btn btn-success btn-lg rounded-pill px-4">
+                                    <i class="fas fa-check mr-2"></i>Confirmar Pedido
+                                </button>
+                                <a href="/menu/desayunos" class="btn btn-outline-warning btn-lg rounded-pill px-4">
+                                    <i class="fas fa-plus mr-2"></i>Seguir comprando
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Formulario de pago -->
+                        <div id="formulario-pago" class="mt-4" style="display:none;">
+                            <h5 class="font-weight-bold mb-3">
+                                <i class="fa fa-credit-card mr-2 text-success"></i>Confirma tus datos para finalizar
+                            </h5>
+                            <form id="form-pedido" method="POST" th:action="@{/pedidos/guardar}">
+                                <input type="hidden" name="cliente" th:value="${nombreCompleto}" id="cliente-hidden">
+                                <input type="hidden" name="correo"  th:value="${email}"          id="correo-hidden">
+                                <input type="hidden" name="metodoEntrega" id="metodoEntrega-hidden" value="RECOGER">
+                                <input type="hidden" name="direccion"     id="direccion-hidden"    th:value="${direccion}">
+                                <input type="hidden" name="total"         id="total-hidden"         value="0">
+                                <input type="hidden" name="detalles"      id="detalles-hidden"      value="">
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="font-weight-bold small text-uppercase text-muted">
+                                                <i class="fas fa-user mr-1"></i>Nombre completo
+                                            </label>
+                                            <input type="text" class="form-control"
+                                                   id="nombre" name="nombre" th:value="${nombreCompleto}" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="font-weight-bold small text-uppercase text-muted">
+                                                <i class="fas fa-envelope mr-1"></i>Correo electrónico
+                                            </label>
+                                            <input type="email" class="form-control"
+                                                   id="correo" name="correo" th:value="${email}" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="font-weight-bold small text-uppercase text-muted">
+                                                <i class="fas fa-phone mr-1"></i>Teléfono
+                                            </label>
+                                            <input type="tel" class="form-control"
+                                                   id="telefono" name="telefono" th:value="${telefono}" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="font-weight-bold small text-uppercase text-muted">
+                                                <i class="fas fa-sticky-note mr-1"></i>Nota (opcional)
+                                            </label>
+                                            <input type="text" class="form-control"
+                                                   id="notas" name="notas" placeholder="Escribe una nota para tu pedido">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="font-weight-bold small text-uppercase text-muted">
+                                                <i class="fas fa-credit-card mr-1"></i>Método de pago
+                                            </label>
+                                            <select class="form-control" id="metodo-pago" name="metodoPago" required>
+                                                <option value="">Selecciona un método</option>
+                                                <option value="EFECTIVO">Efectivo</option>
+                                                <option value="YAPE">Yape</option>
+                                                <option value="PLIN">Plin</option>
+                                                <option value="TARJETA">Tarjeta</option>
+                                            </select>
+                                        </div>
+                                        <div id="extra-pago"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="card bg-light border-0 h-100">
+                                            <div class="card-body">
+                                                <h6 class="font-weight-bold mb-3">
+                                                    <i class="fa fa-receipt mr-2"></i>Resumen del pedido
+                                                </h6>
+                                                <div id="resumen-items"></div>
+                                                <hr>
+                                                <p class="h5 font-weight-bold mb-0">
+                                                    Total: <span id="resumen-total" class="text-success">S/ 0.00</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-lg btn-block rounded-pill mt-3">
+                                    <i class="fas fa-check-circle mr-2"></i>Finalizar Pedido
+                                </button>
+                            </form>
+                        </div>
+
                     </div>
-                    
-                    <!-- Campos ocultos para los datos del pedido -->
-                    <input type="hidden" name="metodoEntrega" id="metodoEntrega-hidden" value="RECOGER">
-                    <input type="hidden" name="direccion" id="direccion-hidden" th:value="${direccion}">
-                    <input type="hidden" name="total" id="total-hidden" value="0">
-                    <input type="hidden" name="detalles" id="detalles-hidden" value="">
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label for="metodo-pago" style="font-weight: 500; color: #555; display: block; margin-bottom: 5px;"><i class="fas fa-credit-card" style="color: #c49b63; margin-right: 8px;"></i>Método de pago</label>
-                        <select style="width: 100%; border: 2px solid #e0d6cc; border-radius: 8px; padding: 10px 15px;" 
-                                id="metodo-pago" name="metodoPago" required>
-                            <option value="">Selecciona un método</option>
-                            <option value="EFECTIVO">Efectivo</option>
-                            <option value="YAPE">Yape</option>
-                            <option value="PLIN">Plin</option>
-                            <option value="TARJETA">Tarjeta</option>
-                        </select>
-                    </div>
-                    
-                    <!-- Información adicional según método de pago -->
-                    <div id="extra-pago"></div>
-                    
-                    <div style="background: #f8f9fa; border-radius: 8px; padding: 15px; margin: 20px 0;">
-                        <h5 style="margin-bottom: 10px;">Resumen del pedido</h5>
-                        <div id="resumen-items"></div>
-                        <hr>
-                        <p style="font-size: 1.2rem; font-weight: bold; margin: 10px 0;">
-                            Total: <span id="resumen-total">S/ 0.00</span>
+                </div><!-- /tab-carrito -->
+
+                <!-- ==================== TAB 2: HISTORIAL ==================== -->
+                <div class="tab-pane fade" id="tab-historial" role="tabpanel">
+                    <div class="p-4">
+
+                        <!-- Panel de filtros -->
+                        <div class="card border-0 bg-light mb-4">
+                            <div class="card-body">
+                                <form method="get" action="/pedidos" id="formHistorial">
+                                    <div class="row align-items-end">
+
+                                        <!-- Botones de período -->
+                                        <div class="col-12 mb-3">
+                                            <p class="text-muted small font-weight-bold text-uppercase mb-2">
+                                                <i class="fa fa-clock mr-1"></i>Período
+                                            </p>
+                                            <div>
+                                                <a th:href="@{/pedidos(periodo='hoy',    nombreProducto=${nombreProducto})} + '#tab-historial'"
+                                                   class="btn btn-sm btn-outline-secondary mr-1 mb-1"
+                                                   th:classappend="${periodoActivo == 'hoy'    and (fechaInicio == null or fechaInicio == '') ? ' active' : ''}">
+                                                    <i class="fa fa-sun mr-1"></i>Hoy
+                                                </a>
+                                                <a th:href="@{/pedidos(periodo='7dias',   nombreProducto=${nombreProducto})} + '#tab-historial'"
+                                                   class="btn btn-sm btn-outline-secondary mr-1 mb-1"
+                                                   th:classappend="${periodoActivo == '7dias'  and (fechaInicio == null or fechaInicio == '') ? ' active' : ''}">
+                                                    7 días
+                                                </a>
+                                                <a th:href="@{/pedidos(periodo='15dias',  nombreProducto=${nombreProducto})} + '#tab-historial'"
+                                                   class="btn btn-sm btn-outline-secondary mr-1 mb-1"
+                                                   th:classappend="${periodoActivo == '15dias' and (fechaInicio == null or fechaInicio == '') ? ' active' : ''}">
+                                                    15 días
+                                                </a>
+                                                <a th:href="@{/pedidos(periodo='1mes',    nombreProducto=${nombreProducto})} + '#tab-historial'"
+                                                   class="btn btn-sm btn-outline-secondary mr-1 mb-1"
+                                                   th:classappend="${periodoActivo == '1mes'   and (fechaInicio == null or fechaInicio == '') ? ' active' : ''}">
+                                                    1 mes
+                                                </a>
+                                                <a th:href="@{/pedidos(periodo='3meses',  nombreProducto=${nombreProducto})} + '#tab-historial'"
+                                                   class="btn btn-sm btn-outline-secondary mr-1 mb-1"
+                                                   th:classappend="${periodoActivo == '3meses' and (fechaInicio == null or fechaInicio == '') ? ' active' : ''}">
+                                                    3 meses
+                                                </a>
+                                                <a th:href="@{/pedidos(periodo='todos',   nombreProducto=${nombreProducto})} + '#tab-historial'"
+                                                   class="btn btn-sm btn-outline-secondary mr-1 mb-1"
+                                                   th:classappend="${periodoActivo == 'todos'  and (fechaInicio == null or fechaInicio == '') ? ' active' : ''}">
+                                                    <i class="fa fa-list mr-1"></i>Todos
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <!-- Fechas y producto -->
+                                        <div class="col-md-3 col-sm-6 mb-3">
+                                            <label class="text-muted small font-weight-bold text-uppercase mb-1 d-block">
+                                                <i class="fa fa-calendar mr-1"></i>Desde
+                                            </label>
+                                            <input type="date" name="fechaInicio" class="form-control form-control-sm"
+                                                   th:value="${fechaInicio}">
+                                        </div>
+                                        <div class="col-md-3 col-sm-6 mb-3">
+                                            <label class="text-muted small font-weight-bold text-uppercase mb-1 d-block">
+                                                <i class="fa fa-calendar mr-1"></i>Hasta
+                                            </label>
+                                            <input type="date" name="fechaFin" class="form-control form-control-sm"
+                                                   th:value="${fechaFin}">
+                                        </div>
+                                        <div class="col-md-4 col-sm-8 mb-3">
+                                            <label class="text-muted small font-weight-bold text-uppercase mb-1 d-block">
+                                                <i class="fa fa-search mr-1"></i>Buscar producto
+                                            </label>
+                                            <input type="text" name="nombreProducto" class="form-control form-control-sm"
+                                                   placeholder="Ej: Cappuccino, Croissant..."
+                                                   th:value="${nombreProducto}">
+                                        </div>
+                                        <div class="col-md-2 col-sm-4 mb-3">
+                                            <label class="d-block invisible small mb-1">_</label>
+                                            <div class="d-flex">
+                                                <button type="submit" class="btn btn-sm btn-warning flex-fill mr-1">
+                                                    <i class="fa fa-filter mr-1"></i>Filtrar
+                                                </button>
+                                                <a th:href="@{/pedidos} + '#tab-historial'"
+                                                   class="btn btn-sm btn-outline-secondary" title="Limpiar">
+                                                    <i class="fa fa-times"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Contador -->
+                        <p class="text-muted small mb-3">
+                            <i class="fa fa-receipt mr-1"></i>
+                            <strong th:text="${historialPedidos != null ? #lists.size(historialPedidos) : 0}">0</strong>
+                            pedido(s) encontrado(s).
                         </p>
+
+                        <!-- Sin resultados -->
+                        <div th:if="${historialPedidos == null or #lists.isEmpty(historialPedidos)}"
+                             class="text-center py-5 text-muted">
+                            <i class="fa fa-box-open fa-3x mb-3"></i>
+                            <h5>No hay pedidos en este período</h5>
+                            <p class="small mb-0">Prueba otro filtro o realiza tu primer pedido.</p>
+                        </div>
+
+                        <!-- Tabla -->
+                        <div th:if="${historialPedidos != null and not #lists.isEmpty(historialPedidos)}"
+                             class="table-responsive rounded shadow-sm">
+                            <table class="table table-hover mb-0">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th class="pl-3" style="width:70px;">#</th>
+                                        <th>Fecha</th>
+                                        <th>Productos</th>
+                                        <th class="text-right">Total</th>
+                                        <th>Pago</th>
+                                        <th>Entrega</th>
+                                        <th class="text-center">Estado</th>
+                                        <th class="text-center">Detalle</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <th:block th:each="ped : ${historialPedidos}">
+                                        <tr>
+                                            <td class="pl-3 align-middle text-muted font-weight-bold small">
+                                                #<span th:text="${ped.id}"></span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <span class="d-block" th:text="${#temporals.format(ped.fechaPedido,'dd/MM/yyyy')}"></span>
+                                                <small class="text-muted" th:text="${#temporals.format(ped.fechaPedido,'HH:mm')}"></small>
+                                            </td>
+                                            <td class="align-middle">
+                                                <th:block th:each="det : ${ped.detalles}">
+                                                    <span class="badge badge-secondary mr-1 mb-1"
+                                                          th:text="${det.cantidad} + ' x ' + ${det.producto.nombre}"></span>
+                                                </th:block>
+                                                <span th:if="${ped.detalles == null or #lists.isEmpty(ped.detalles)}"
+                                                      class="text-muted">—</span>
+                                            </td>
+                                            <td class="align-middle text-right font-weight-bold">
+                                                S/ <span th:text="${#numbers.formatDecimal(ped.total,1,2)}"></span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <span th:switch="${ped.metodoPago}">
+                                                    <span th:case="'EFECTIVO'"><i class="fa fa-money-bill-wave mr-1 text-success"></i>Efectivo</span>
+                                                    <span th:case="'YAPE'"><i class="fa fa-mobile-alt mr-1 text-primary"></i>Yape</span>
+                                                    <span th:case="'PLIN'"><i class="fa fa-mobile-alt mr-1 text-info"></i>Plin</span>
+                                                    <span th:case="'TARJETA'"><i class="fa fa-credit-card mr-1 text-primary"></i>Tarjeta</span>
+                                                    <span th:case="*" th:text="${ped.metodoPago}"></span>
+                                                </span>
+                                            </td>
+                                            <td class="align-middle">
+                                                <span th:if="${ped.tipoEntrega == 'RECOGER'}">
+                                                    <i class="fa fa-store mr-1 text-warning"></i>Recoger
+                                                </span>
+                                                <span th:if="${ped.tipoEntrega == 'DOMICILIO'}">
+                                                    <i class="fa fa-truck mr-1 text-info"></i>Domicilio
+                                                </span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <span th:switch="${ped.estado}">
+                                                    <span th:case="'PENDIENTE'"   class="badge badge-warning">Pendiente</span>
+                                                    <span th:case="'EN_PROCESO'"  class="badge badge-info">En proceso</span>
+                                                    <span th:case="'ENVIADO'"     class="badge badge-primary">Enviado</span>
+                                                    <span th:case="'ENTREGADO'"   class="badge badge-success">Entregado</span>
+                                                    <span th:case="'CANCELADO'"   class="badge badge-danger">Cancelado</span>
+                                                    <span th:case="*" class="badge badge-secondary" th:text="${ped.estado}"></span>
+                                                </span>
+                                            </td>
+                                            <td class="align-middle text-center">
+                                                <button class="btn btn-sm btn-outline-secondary btn-toggle-ped"
+                                                        type="button"
+                                                        th:attr="data-target='ped-det-' + ${ped.id}">
+                                                    <i class="fa fa-chevron-down"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <!-- Fila detalle expandible -->
+                                        <tr th:id="'ped-det-' + ${ped.id}" class="table-warning d-none">
+                                            <td colspan="8" class="px-4 py-3">
+                                                <div class="row">
+                                                    <div class="col-md-7">
+                                                        <h6 class="font-weight-bold mb-2">
+                                                            <i class="fa fa-list-ul mr-1"></i>Productos del pedido
+                                                        </h6>
+                                                        <table class="table table-sm table-borderless bg-transparent mb-0">
+                                                            <thead class="text-muted small">
+                                                                <tr>
+                                                                    <th>Producto</th>
+                                                                    <th class="text-center">Cant.</th>
+                                                                    <th class="text-right">P. Unit.</th>
+                                                                    <th class="text-right">Subtotal</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr th:each="det : ${ped.detalles}">
+                                                                    <td th:text="${det.producto.nombre}"></td>
+                                                                    <td class="text-center" th:text="${det.cantidad}"></td>
+                                                                    <td class="text-right">S/ <span th:text="${#numbers.formatDecimal(det.precioUnitario,1,2)}"></span></td>
+                                                                    <td class="text-right font-weight-bold">S/ <span th:text="${#numbers.formatDecimal(det.subtotal,1,2)}"></span></td>
+                                                                </tr>
+                                                            </tbody>
+                                                            <tfoot>
+                                                                <tr>
+                                                                    <td colspan="3" class="text-right font-weight-bold border-top pt-2">Total:</td>
+                                                                    <td class="text-right font-weight-bold border-top pt-2">
+                                                                        S/ <span th:text="${#numbers.formatDecimal(ped.total,1,2)}"></span>
+                                                                    </td>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                    </div>
+                                                    <div class="col-md-5">
+                                                        <h6 class="font-weight-bold mb-2">
+                                                            <i class="fa fa-info-circle mr-1"></i>Información
+                                                        </h6>
+                                                        <table class="table table-sm table-borderless bg-transparent mb-0 small">
+                                                            <tr>
+                                                                <th class="text-muted" style="width:110px;">Método pago:</th>
+                                                                <td th:text="${ped.metodoPago}"></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <th class="text-muted">Tipo entrega:</th>
+                                                                <td th:text="${ped.tipoEntrega}"></td>
+                                                            </tr>
+                                                            <tr th:if="${ped.tipoEntrega == 'DOMICILIO'}">
+                                                                <th class="text-muted">Dirección:</th>
+                                                                <td th:text="${ped.direccionEntrega}"></td>
+                                                            </tr>
+                                                            <tr th:if="${ped.notas != null and ped.notas != ''}">
+                                                                <th class="text-muted">Notas:</th>
+                                                                <td th:text="${ped.notas}"></td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </th:block>
+                                </tbody>
+                            </table>
+                        </div>
+
                     </div>
-                    
-                    <button type="submit" style="background: #28a745; color: white; border: none; border-radius: 30px; padding: 12px 30px; font-weight: 600; cursor: pointer; width: 100%;">
-                        <i class="fas fa-check-circle mr-2"></i>Finalizar Pedido
-                    </button>
-                </form>
-            </div>
+                </div><!-- /tab-historial -->
+
+            </div><!-- /tab-content -->
         </div>
     </div>
+    <!-- FIN CONTENIDO PRINCIPAL -->
 
-    <!-- Footer -->
     <div th:replace="~{base :: footer}"></div>
-    
-    <!-- Scripts -->
     <div th:replace="~{base :: scripts}"></div>
 
-    <!-- Script para pedidos -->
-   <script>
-    // Función para actualizar contador (debe estar disponible globalmente)
+    <script>
     window.actualizarContadorCarrito = function() {
         const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
         const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
-        const floatingCount = document.getElementById('floating-cart-count');
-        if (floatingCount) {
-            floatingCount.textContent = totalItems;
-        }
+        const el = document.getElementById('floating-cart-count');
+        if (el) el.textContent = totalItems;
+        const badge = document.getElementById('badge-carrito');
+        if (badge) badge.textContent = totalItems;
     };
 
-    // Función para mostrar mensajes flotantes
+    function activarTabCarrito() {
+        $('#link-tab-carrito').tab('show');
+    }
+
     function mostrarMensaje(tipo, texto) {
         const alerta = $(`
-            <div class="alert alert-${tipo} alert-custom alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+            <div class="alert alert-${tipo} alert-dismissible fade show"
+                 role="alert"
+                 style="position:fixed;top:20px;right:20px;z-index:9999;min-width:300px;">
                 <i class="fa ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
-                <span>${texto}</span>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                ${texto}
+                <button type="button" class="close" data-dismiss="alert">
+                    <span>&times;</span>
                 </button>
-            </div>
-        `);
-        
+            </div>`);
         $('body').append(alerta);
-        
-        // Auto-cerrar después de 5 segundos
-        setTimeout(() => {
-            alerta.fadeOut(500, function() {
-                $(this).remove();
-            });
-        }, 5000);
+        setTimeout(() => alerta.fadeOut(500, function() { $(this).remove(); }), 5000);
     }
 
     $(document).ready(function() {
         cargarCarrito();
-        
-        // Mostrar/ocultar campo de dirección
+
+        // ===== Determinar qué tab mostrar al cargar =====
+        const params = new URLSearchParams(window.location.search);
+        const tienesFiltro = params.has('periodo') || params.has('fechaInicio')
+                          || params.has('fechaFin') || params.has('nombreProducto');
+        if (tienesFiltro) {
+            $('#link-tab-historial').tab('show');
+        } else {
+            $('#link-tab-carrito').tab('show');
+        }
+
+        // ===== Método de entrega =====
         $('input[name="metodoEntrega"]').change(function() {
-            const metodo = $(this).val();
-            $('#metodoEntrega-hidden').val(metodo);
-            
-            if (metodo === 'DOMICILIO') {
+            $('#metodoEntrega-hidden').val($(this).val());
+            if ($(this).val() === 'DOMICILIO') {
                 $('#campo-direccion').slideDown(300);
             } else {
                 $('#campo-direccion').slideUp(300);
             }
         });
-        
-        // Botón confirmar pedido
+
+        // ===== Confirmar pedido =====
         $('#btn-confirmar').click(function() {
             const items = JSON.parse(localStorage.getItem('carrito')) || [];
-            if (items.length === 0) {
-                mostrarMensaje('warning', 'Tu carrito está vacío');
-                return;
-            }
-            
-            // Actualizar campos ocultos
+            if (items.length === 0) { mostrarMensaje('warning', 'Tu carrito está vacío'); return; }
+
             const total = items.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
-            $('#total-hidden').val(total.toFixed(2));
-            
-            // Crear un resumen del pedido para enviar
             const detalles = items.map(item => ({
-                id: item.id,
-                nombre: item.nombre,
-                cantidad: item.cantidad,
-                precio: item.precio,
-                subtotal: item.precio * item.cantidad
+                id: item.id, nombre: item.nombre, cantidad: item.cantidad,
+                precio: item.precio, subtotal: item.precio * item.cantidad
             }));
-            
+            $('#total-hidden').val(total.toFixed(2));
             $('#detalles-hidden').val(JSON.stringify(detalles));
-            
-            // Actualizar método de entrega
+
             const metodoEntrega = $('input[name="metodoEntrega"]:checked').val();
             $('#metodoEntrega-hidden').val(metodoEntrega);
-            
-            // Actualizar dirección
             if (metodoEntrega === 'DOMICILIO') {
                 $('#direccion-hidden').val($('#direccion').val());
             }
-            
+
             $('#formulario-pago').slideDown(500);
-            $('html, body').animate({
-                scrollTop: $('#formulario-pago').offset().top - 100
-            }, 500);
+            $('html, body').animate({ scrollTop: $('#formulario-pago').offset().top - 80 }, 500);
         });
-        
-        // Método de pago cambia
+
+        // ===== Método de pago =====
         $('#metodo-pago').change(function() {
-            const metodo = $(this).val();
+            const m = $(this).val();
             let html = '';
-            
-            if (metodo === 'YAPE') {
-                html = `
-                    <div style="background: #d1ecf1; border: 2px solid #bee5eb; border-radius: 8px; color: #0c5460; padding: 15px; margin-top: 15px;">
-                        <strong style="font-size: 1.1rem; display: block; margin-bottom: 8px;">📱 Yape:</strong>
-                        <span style="font-size: 1.2rem; font-weight: bold;">912 594 051</span><br>
-                        <small style="opacity: 0.8;">Paga con Yape y te contactaremos para confirmar</small>
-                    </div>
-                `;
-            } else if (metodo === 'PLIN') {
-                html = `
-                    <div style="background: #d1ecf1; border: 2px solid #bee5eb; border-radius: 8px; color: #0c5460; padding: 15px; margin-top: 15px;">
-                        <strong style="font-size: 1.1rem; display: block; margin-bottom: 8px;">💙 Plin:</strong>
-                        <span style="font-size: 1.2rem; font-weight: bold;">912 594 051</span><br>
-                        <small style="opacity: 0.8;">Paga con Plin y confirma tu pago</small>
-                    </div>
-                `;
+            if (m === 'YAPE') {
+                html = `<div class="alert alert-info mt-2">
+                    <strong>📱 Yape:</strong> 912 594 051<br>
+                    <small>Paga con Yape y te contactaremos para confirmar</small></div>`;
+            } else if (m === 'PLIN') {
+                html = `<div class="alert alert-info mt-2">
+                    <strong>💙 Plin:</strong> 912 594 051<br>
+                    <small>Paga con Plin y confirma tu pago</small></div>`;
             }
-            
             $('#extra-pago').html(html);
         });
-        
-        // ===== ENVÍO DEL FORMULARIO =====
+
+        // ===== Envío del formulario (AJAX) =====
         $('#form-pedido').on('submit', function(e) {
-            e.preventDefault(); // Prevenir envío normal primero
-            
+            e.preventDefault();
             const items = JSON.parse(localStorage.getItem('carrito')) || [];
             const metodoEntrega = $('input[name="metodoEntrega"]:checked').val();
-            
-            // Validaciones
-            if (items.length === 0) {
-                mostrarMensaje('warning', 'Tu carrito está vacío');
-                return;
-            }
-            
+
+            if (items.length === 0) { mostrarMensaje('warning', 'Tu carrito está vacío'); return; }
             if (metodoEntrega === 'DOMICILIO' && !$('#direccion').val()) {
-                mostrarMensaje('warning', 'Por favor ingresa tu dirección para envío a domicilio');
-                return;
+                mostrarMensaje('warning', 'Por favor ingresa tu dirección'); return;
             }
-            
             if (!$('#nombre').val() || !$('#telefono').val() || !$('#metodo-pago').val()) {
-                mostrarMensaje('warning', 'Por favor completa todos los campos obligatorios');
-                return;
+                mostrarMensaje('warning', 'Por favor completa todos los campos obligatorios'); return;
             }
-            
-            // Mostrar indicador de carga
+
             const submitBtn = $(this).find('button[type="submit"]');
-            const originalText = submitBtn.text();
             submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Procesando...');
-            
-            // Preparar datos para enviar
-            const formData = {
-                cliente: $('#nombre').val(),
-                correo: $('#correo').val(),
-                telefono: $('#telefono').val(),
-                total: $('#total-hidden').val(),
-                metodoEntrega: $('#metodoEntrega-hidden').val(),
-                direccion: $('#direccion-hidden').val() || '',
-                metodoPago: $('#metodo-pago').val(),
-                notas: $('#notas').val(),
-                detalles: $('#detalles-hidden').val()
-            };
-            
-            // Enviar mediante AJAX
+
             $.ajax({
-                url: '/pedidos/guardar',
-                type: 'POST',
-                data: formData,
-                success: function(response) {
-                    // ===== LIMPIAR CARRITO =====
-                    localStorage.removeItem('carrito');
-                    
-                    // Actualizar contador flotante
-                    actualizarContadorCarrito();
-                    
-                    // Restaurar botón
-                    submitBtn.prop('disabled', false).html(originalText);
-                    
-                    // Mostrar mensaje de éxito
-                    mostrarMensaje('success', '¡Pedido realizado con éxito! Te contactaremos pronto.');
-                    
-                    // Redirigir después de 2 segundos para que vean el mensaje
-                    setTimeout(() => {
-                        window.location.href = '/pedidos?exito=true';
-                    }, 2000);
+                url: '/pedidos/guardar', type: 'POST',
+                data: {
+                    cliente: $('#nombre').val(), correo: $('#correo').val(),
+                    telefono: $('#telefono').val(), total: $('#total-hidden').val(),
+                    metodoEntrega: $('#metodoEntrega-hidden').val(),
+                    direccion: $('#direccion-hidden').val() || '',
+                    metodoPago: $('#metodo-pago').val(),
+                    notas: $('#notas').val(), detalles: $('#detalles-hidden').val()
                 },
-                error: function(xhr, status, error) {
-                    console.error('Error:', error);
-                    
-                    // Restaurar botón
-                    submitBtn.prop('disabled', false).html(originalText);
-                    
-                    // Mostrar mensaje de error
-                    let mensajeError = 'Error al procesar el pedido. Por favor intenta nuevamente.';
-                    if (xhr.responseJSON && xhr.responseJSON.message) {
-                        mensajeError = xhr.responseJSON.message;
-                    }
-                    mostrarMensaje('danger', mensajeError);
+                success: function() {
+                    localStorage.removeItem('carrito');
+                    actualizarContadorCarrito();
+                    submitBtn.prop('disabled', false).html('<i class="fas fa-check-circle mr-2"></i>Finalizar Pedido');
+                    mostrarMensaje('success', '¡Pedido realizado con éxito! Te contactaremos pronto.');
+                    setTimeout(() => { window.location.href = '/pedidos'; }, 2000);
+                },
+                error: function(xhr) {
+                    submitBtn.prop('disabled', false).html('<i class="fas fa-check-circle mr-2"></i>Finalizar Pedido');
+                    const msg = (xhr.responseJSON && xhr.responseJSON.message)
+                        ? xhr.responseJSON.message : 'Error al procesar el pedido. Intenta nuevamente.';
+                    mostrarMensaje('danger', msg);
                 }
             });
         });
+
+        // ===== Toggle filas de detalle =====
+        document.querySelectorAll('.btn-toggle-ped').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var fila = document.getElementById(this.getAttribute('data-target'));
+                if (!fila) return;
+                fila.classList.toggle('d-none');
+                var icon = this.querySelector('i');
+                icon.classList.toggle('fa-chevron-down');
+                icon.classList.toggle('fa-chevron-up');
+            });
+        });
+
+        // ===== Al enviar filtros, activar tab historial =====
+        document.getElementById('formHistorial').addEventListener('submit', function() {
+            this.action = '/pedidos';
+            sessionStorage.setItem('abrirHistorial', '1');
+        });
     });
-    
+
     function cargarCarrito() {
         const items = JSON.parse(localStorage.getItem('carrito')) || [];
-        let html = '';
-        let total = 0;
-        
+        actualizarContadorCarrito();
+
         if (items.length === 0) {
             $('#carrito-container').hide();
             $('#empty-cart').show();
             return;
         }
-        
         $('#carrito-container').show();
         $('#empty-cart').hide();
-        
+
+        let html = '', total = 0;
         items.forEach((item, index) => {
             const subtotal = item.precio * item.cantidad;
             total += subtotal;
-            
             html += `
                 <tr>
-                    <td style="padding: 15px; border-bottom: 1px solid #f0f0f0; vertical-align: middle;">${item.nombre}</td>
-                    <td style="padding: 15px; border-bottom: 1px solid #f0f0f0; vertical-align: middle;">
-                        <img src="${item.imagen}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid #c49b63;" alt="${item.nombre}">
+                    <td class="align-middle">${item.nombre}</td>
+                    <td class="align-middle">
+                        <img src="${item.imagen}"
+                             class="rounded border"
+                             style="width:55px;height:55px;object-fit:cover;"
+                             alt="${item.nombre}">
                     </td>
-                    <td style="padding: 15px; border-bottom: 1px solid #f0f0f0; vertical-align: middle;">S/ ${item.precio.toFixed(2)}</td>
-                    <td style="padding: 15px; border-bottom: 1px solid #f0f0f0; vertical-align: middle;">
-                        <div style="display: flex; align-items: center; gap: 5px;">
-                            <span style="width: 30px; height: 30px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold;" onclick="actualizarCantidad(${index}, -1)">−</span>
-                            <input type="number" style="width: 50px; height: 35px; text-align: center; border: 1px solid #ddd; border-radius: 4px; font-weight: 600;" value="${item.cantidad}" min="1" max="10" id="cart-qty-${index}" readonly>
-                            <span style="width: 30px; height: 30px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold;" onclick="actualizarCantidad(${index}, 1)">+</span>
+                    <td class="align-middle">S/ ${item.precio.toFixed(2)}</td>
+                    <td class="align-middle">
+                        <div class="input-group input-group-sm" style="width:110px;">
+                            <div class="input-group-prepend">
+                                <button class="btn btn-outline-secondary" type="button"
+                                        onclick="actualizarCantidad(${index}, -1)">−</button>
+                            </div>
+                            <input type="text" class="form-control text-center font-weight-bold"
+                                   value="${item.cantidad}" readonly>
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button"
+                                        onclick="actualizarCantidad(${index}, 1)">+</button>
+                            </div>
                         </div>
                     </td>
-                    <td style="padding: 15px; border-bottom: 1px solid #f0f0f0; vertical-align: middle;">S/ ${subtotal.toFixed(2)}</td>
-                    <td style="padding: 15px; border-bottom: 1px solid #f0f0f0; vertical-align: middle;">
-                        <button style="background: #dc3545; color: white; border: none; border-radius: 4px; padding: 5px 10px; font-size: 0.8rem; cursor: pointer;" onclick="eliminarItem(${index})">
-                            <i class="fas fa-trash"></i> Eliminar
+                    <td class="align-middle font-weight-bold">S/ ${subtotal.toFixed(2)}</td>
+                    <td class="align-middle">
+                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarItem(${index})">
+                            <i class="fas fa-trash"></i>
                         </button>
                     </td>
-                </tr>
-            `;
+                </tr>`;
         });
-        
+
         $('#items-carrito').html(html);
         $('#total-carrito').html(`S/ ${total.toFixed(2)}`);
         $('#total-hidden').val(total.toFixed(2));
-        
-        // Actualizar resumen
         actualizarResumen(items, total);
     }
-    
+
     function actualizarResumen(items, total) {
-        let html = '<ul style="list-style: none; padding: 0;">';
+        let html = '<ul class="list-unstyled mb-0">';
         items.forEach(item => {
-            html += `<li style="margin-bottom: 8px;">• ${item.cantidad}x ${item.nombre} - S/ ${(item.precio * item.cantidad).toFixed(2)}</li>`;
+            html += `<li class="d-flex justify-content-between mb-1">
+                        <span>${item.cantidad}× ${item.nombre}</span>
+                        <span class="font-weight-bold">S/ ${(item.precio * item.cantidad).toFixed(2)}</span>
+                     </li>`;
         });
         html += '</ul>';
         $('#resumen-items').html(html);
         $('#resumen-total').html(`S/ ${total.toFixed(2)}`);
     }
-    
+
     function actualizarCantidad(index, cambio) {
         const items = JSON.parse(localStorage.getItem('carrito')) || [];
-        let nuevaCantidad = items[index].cantidad + cambio;
-        
-        if (nuevaCantidad < 1) nuevaCantidad = 1;
-        if (nuevaCantidad > 10) nuevaCantidad = 10;
-        
-        items[index].cantidad = nuevaCantidad;
+        let q = items[index].cantidad + cambio;
+        if (q < 1) q = 1;
+        if (q > 10) q = 10;
+        items[index].cantidad = q;
         localStorage.setItem('carrito', JSON.stringify(items));
         cargarCarrito();
-        
-        if (window.actualizarContadorCarrito) {
-            window.actualizarContadorCarrito();
-        }
     }
-    
+
     function eliminarItem(index) {
         const items = JSON.parse(localStorage.getItem('carrito')) || [];
         items.splice(index, 1);
         localStorage.setItem('carrito', JSON.stringify(items));
         cargarCarrito();
-        
-        if (window.actualizarContadorCarrito) {
-            window.actualizarContadorCarrito();
-        }
     }
-    
-    // Inicializar contador
-    document.addEventListener('DOMContentLoaded', function() {
-        actualizarContadorCarrito();
-    });
-</script>
-    
-    <!-- Botones flotantes -->
+    </script>
+
     <div th:replace="~{base :: floating-buttons}"></div>
 </body>
 </html>

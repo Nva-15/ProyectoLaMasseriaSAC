@@ -41,3 +41,6 @@ logs/
 node_modules/
 .env
 .env.local
+
+# Claude Code
+.claude/

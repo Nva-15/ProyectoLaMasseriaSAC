@@ -30,17 +30,111 @@
             <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
         </div>
 
+        <!-- ===== FILTROS ===== -->
+        <div class="row px-xl-5 mb-3">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-light" style="border-left: 4px solid #c49b63;">
+                        <h6 class="mb-0 text-muted"><i class="fa fa-filter mr-2"></i>Filtros de Búsqueda</h6>
+                    </div>
+                    <div class="card-body pb-2">
+                        <form id="formFiltros" action="/admin/pedidos" method="get">
+                            <input type="hidden" name="periodo" id="inputPeriodo" th:value="${periodoActivo}">
+
+                            <!-- Período rápido -->
+                            <div class="mb-3">
+                                <small class="text-muted d-block mb-1 font-weight-bold">Período:</small>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-secondary"
+                                            th:classappend="${periodoActivo == 'hoy' ? ' active' : ''}"
+                                            onclick="setPeriodo('hoy')">
+                                        <i class="fa fa-calendar-day mr-1"></i>Hoy
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary"
+                                            th:classappend="${periodoActivo == '7dias' ? ' active' : ''}"
+                                            onclick="setPeriodo('7dias')">
+                                        <i class="fa fa-calendar-week mr-1"></i>7 Días
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary"
+                                            th:classappend="${periodoActivo == '1mes' ? ' active' : ''}"
+                                            onclick="setPeriodo('1mes')">
+                                        <i class="fa fa-calendar-alt mr-1"></i>1 Mes
+                                    </button>
+                                    <button type="button" class="btn btn-outline-secondary"
+                                            th:classappend="${periodoActivo == 'todos' ? ' active' : ''}"
+                                            onclick="setPeriodo('todos')">
+                                        <i class="fa fa-list mr-1"></i>Todos
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Filtros avanzados -->
+                            <div class="row align-items-end">
+                                <div class="col-md-3 mb-2">
+                                    <label class="small text-muted mb-1">Nombre del cliente</label>
+                                    <div class="input-group input-group-sm">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fa fa-user"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control" name="clienteNombre"
+                                               th:value="${clienteNombre}" placeholder="Buscar cliente...">
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mb-2">
+                                    <label class="small text-muted mb-1">Estado</label>
+                                    <select class="form-control form-control-sm" name="estado">
+                                        <option value="">Todos los estados</option>
+                                        <option value="PENDIENTE"  th:selected="${estadoFiltro == 'PENDIENTE'}">⏳ Pendiente</option>
+                                        <option value="EN_PROCESO" th:selected="${estadoFiltro == 'EN_PROCESO'}">🔄 En Proceso</option>
+                                        <option value="ENVIADO"    th:selected="${estadoFiltro == 'ENVIADO'}">🚚 Enviado</option>
+                                        <option value="ENTREGADO"  th:selected="${estadoFiltro == 'ENTREGADO'}">✅ Entregado</option>
+                                        <option value="CANCELADO"  th:selected="${estadoFiltro == 'CANCELADO'}">❌ Cancelado</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 mb-2">
+                                    <label class="small text-muted mb-1">Desde</label>
+                                    <input type="date" class="form-control form-control-sm" name="fechaInicio"
+                                           th:value="${fechaInicio}">
+                                </div>
+                                <div class="col-md-2 mb-2">
+                                    <label class="small text-muted mb-1">Hasta</label>
+                                    <input type="date" class="form-control form-control-sm" name="fechaFin"
+                                           th:value="${fechaFin}">
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button type="submit" class="btn btn-sm btn-warning mr-2">
+                                        <i class="fa fa-search mr-1"></i>Filtrar
+                                    </button>
+                                    <a href="/admin/pedidos" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fa fa-times mr-1"></i>Limpiar
+                                    </a>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TABLA PEDIDOS ===== -->
         <div class="row px-xl-5">
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header d-flex justify-content-between align-items-center text-white" style="background: #c49b63;">
-                        <h5 class="mb-0"><i class="fa fa-shopping-cart mr-2"></i>Todos los Pedidos</h5>
-                        <span class="badge badge-light" th:text="${#lists.size(pedidos)} + ' pedidos'">0 pedidos</span>
+                        <h5 class="mb-0">
+                            <i class="fa fa-shopping-cart mr-2"></i>
+                            <span th:text="${periodoActivo == 'hoy'   ? 'Pedidos de Hoy' :
+                                            periodoActivo == '7dias' ? 'Pedidos — Últimos 7 Días' :
+                                            periodoActivo == '1mes'  ? 'Pedidos — Último Mes' : 'Todos los Pedidos'}">
+                                Pedidos
+                            </span>
+                        </h5>
+                        <span class="badge badge-light" th:text="${#lists.size(pedidos)} + ' pedido(s)'">0 pedidos</span>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
                             <table class="table table-hover mb-0">
-                                <thead style="background: #f8f9fa;">
+                                <thead class="thead-dark">
                                     <tr>
                                         <th class="px-3">#ID</th>
                                         <th>Fecha</th>
@@ -56,30 +150,47 @@
                                     <tr th:each="pedido : ${pedidos}">
                                         <td class="px-3 font-weight-bold" th:text="${pedido.id}">1</td>
                                         <td th:text="${#temporals.format(pedido.fechaPedido, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
-                                        <td th:text="${pedido.clienteNombre}">Cliente</td>
-                                        <td class="font-weight-bold">S/ <span th:text="${#numbers.formatDecimal(pedido.total, 1, 2)}">0.00</span></td>
+                                        <td>
+                                            <i class="fa fa-user text-muted mr-1"></i>
+                                            <span th:text="${pedido.clienteNombre}">Cliente</span>
+                                        </td>
+                                        <td class="font-weight-bold text-success">
+                                            S/ <span th:text="${#numbers.formatDecimal(pedido.total, 1, 2)}">0.00</span>
+                                        </td>
                                         <td>
                                             <span class="badge badge-pill px-2 py-1"
-                                                  th:classappend="${pedido.estado == 'PENDIENTE' ? 'badge-warning' :
-                                                                    pedido.estado == 'EN_PROCESO' ? 'badge-info' :
-                                                                    pedido.estado == 'ENVIADO' ? 'badge-primary' :
-                                                                    pedido.estado == 'ENTREGADO' ? 'badge-success' : 'badge-danger'}"
+                                                  th:classappend="${pedido.estado == 'PENDIENTE'  ? 'badge-warning'  :
+                                                                    pedido.estado == 'EN_PROCESO' ? 'badge-info'     :
+                                                                    pedido.estado == 'ENVIADO'    ? 'badge-primary'  :
+                                                                    pedido.estado == 'ENTREGADO'  ? 'badge-success'  : 'badge-danger'}"
                                                   th:text="${pedido.estado}">PENDIENTE</span>
                                         </td>
                                         <td>
-                                            <span th:if="${pedido.tipoEntrega == 'DOMICILIO'}"><i class="fa fa-truck mr-1"></i>Domicilio</span>
-                                            <span th:if="${pedido.tipoEntrega == 'RECOGER'}"><i class="fa fa-store mr-1"></i>Recoger</span>
+                                            <span th:if="${pedido.tipoEntrega == 'DOMICILIO'}">
+                                                <i class="fa fa-truck text-primary mr-1"></i>Domicilio
+                                            </span>
+                                            <span th:if="${pedido.tipoEntrega == 'RECOGER'}">
+                                                <i class="fa fa-store text-info mr-1"></i>Recoger
+                                            </span>
                                         </td>
-                                        <td th:text="${pedido.metodoPago}">EFECTIVO</td>
+                                        <td>
+                                            <span class="badge badge-secondary" th:text="${pedido.metodoPago}">EFECTIVO</span>
+                                        </td>
                                         <td class="text-center">
-                                            <a th:href="@{'/admin/pedidos/' + ${pedido.id}}" class="btn btn-sm text-white" style="background: #c49b63;">
-                                                <i class="fa fa-eye"></i> Ver
+                                            <a th:href="@{'/admin/pedidos/' + ${pedido.id}}"
+                                               class="btn btn-sm text-white" style="background: #c49b63;">
+                                                <i class="fa fa-eye mr-1"></i>Ver
                                             </a>
                                         </td>
                                     </tr>
                                     <tr th:if="${#lists.isEmpty(pedidos)}">
-                                        <td colspan="8" class="text-center text-muted py-4">
-                                            <i class="fa fa-inbox fa-2x mb-2 d-block"></i>No hay pedidos registrados
+                                        <td colspan="8" class="text-center text-muted py-5">
+                                            <i class="fa fa-inbox fa-3x mb-3 d-block"></i>
+                                            <span th:text="${periodoActivo == 'hoy'
+                                                ? 'No hay pedidos registrados hoy'
+                                                : 'No se encontraron pedidos con los filtros aplicados'}">
+                                                No hay pedidos
+                                            </span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -94,5 +205,16 @@
     <div th:replace="~{base :: footer}"></div>
     <div th:replace="~{base :: scripts}"></div>
     <div th:replace="~{base :: floating-buttons}"></div>
+
+    <script>
+        function setPeriodo(p) {
+            document.getElementById('inputPeriodo').value = p;
+            var fi = document.querySelector('[name="fechaInicio"]');
+            var ff = document.querySelector('[name="fechaFin"]');
+            if (fi) fi.value = '';
+            if (ff) ff.value = '';
+            document.getElementById('formFiltros').submit();
+        }
+    </script>
 </body>
 </html>
