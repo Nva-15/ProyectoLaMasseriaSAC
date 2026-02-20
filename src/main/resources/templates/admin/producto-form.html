@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <meta charset="utf-8">
+    <title>Admin - Producto</title>
+</head>
+<body>
+    <div th:replace="~{base :: navbar}"></div>
+
+    <div class="container-fluid page-header mb-5 position-relative overlay-bottom">
+        <div class="d-flex flex-column align-items-center justify-content-center pt-0 pt-lg-5" style="min-height: 400px">
+            <h1 class="display-4 mb-3 mt-0 mt-lg-5 text-white text-uppercase" th:text="${titulo}">Producto</h1>
+            <div class="d-inline-flex mb-lg-5">
+                <p class="m-0 text-white"><a class="text-white" href="/">Inicio</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white"><a class="text-white" href="/admin">Admin</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white"><a class="text-white" href="/admin/productos">Productos</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white" th:text="${titulo}">Formulario</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid pt-5">
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa fa-exclamation-circle mr-2"></i>[[${error}]]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+
+        <div class="row px-xl-5 justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header text-white" style="background: #c49b63;">
+                        <h5 class="mb-0"><i class="fa fa-coffee mr-2"></i><span th:text="${titulo}">Producto</span></h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="/admin/productos/guardar" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="id" th:value="${producto.id}">
+                            <input type="hidden" name="imagenUrlExistente" th:value="${producto.imagenUrl}">
+
+                            <div class="form-group">
+                                <label class="font-weight-bold">Nombre <span class="text-danger">*</span></label>
+                                <input type="text" name="nombre" class="form-control" th:value="${producto.nombre}"
+                                       required placeholder="Nombre del producto">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="font-weight-bold">Descripción</label>
+                                <textarea name="descripcion" class="form-control" rows="3"
+                                          th:text="${producto.descripcion}" placeholder="Descripción del producto"></textarea>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="font-weight-bold">Precio (S/) <span class="text-danger">*</span></label>
+                                        <input type="number" name="precio" class="form-control" step="0.01" min="0"
+                                               th:value="${producto.precio}" required placeholder="0.00">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="font-weight-bold">Stock</label>
+                                        <input type="number" name="stock" class="form-control" min="0"
+                                               th:value="${producto.stock ?: 0}" placeholder="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="font-weight-bold">Categoría <span class="text-danger">*</span></label>
+                                <select name="categoriaId" class="form-control" required>
+                                    <option value="">-- Seleccionar categoría --</option>
+                                    <option th:each="cat : ${categorias}" th:value="${cat.id}" th:text="${cat.nombre}"
+                                            th:selected="${producto.categoria != null and producto.categoria.id == cat.id}">Categoría</option>
+                                </select>
+                            </div>
+
+                            <!-- Imagen -->
+                            <div class="form-group">
+                                <label class="font-weight-bold">Imagen del Producto</label>
+
+                                <!-- Vista previa de imagen actual -->
+                                <div th:if="${producto.imagenUrl != null and !producto.imagenUrl.isEmpty()}" class="mb-3">
+                                    <p class="text-muted mb-1">Imagen actual:</p>
+                                    <img th:src="${producto.imagenUrl}" alt="Imagen actual" id="imagenActual"
+                                         class="img-thumbnail" style="max-height: 200px; max-width: 300px;">
+                                    <br>
+                                    <small class="text-muted" th:text="${producto.imagenUrl}"></small>
+                                </div>
+
+                                <!-- Vista previa de nueva imagen -->
+                                <div id="previewContainer" class="mb-3" style="display: none;">
+                                    <p class="text-muted mb-1">Nueva imagen seleccionada:</p>
+                                    <img id="imagenPreview" class="img-thumbnail" style="max-height: 200px; max-width: 300px;" alt="Preview">
+                                </div>
+
+                                <!-- Input de archivo con cuadro de texto y botón de carpeta -->
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="nombreArchivoTexto" 
+                                           placeholder="Ningún archivo seleccionado" readonly 
+                                           th:value="${producto.imagenUrl != null ? 'Imagen actual: ' + producto.imagenUrl : ''}">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="document.getElementById('imagen').click();" style="border-color: #ced4da;">
+                                            <i class="fa fa-folder-open" style="font-size: 1.2rem; color: #c49b63;"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Input file oculto -->
+                                <input type="file" id="imagen" name="imagen" style="display: none;" 
+                                       accept="image/jpeg,image/png" onchange="previewImagen(this)">
+                                
+                                <small class="form-text text-muted mt-2">
+                                    Formatos permitidos: JPG, PNG. Tamaño máximo: 5MB.
+                                    <span th:if="${producto.id != null}">Si no seleccionas una nueva imagen, se conservará la actual.</span>
+                                </small>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="destacado" name="destacado" value="true"
+                                                   th:checked="${producto.destacado}">
+                                            <label class="custom-control-label font-weight-bold" for="destacado">Producto Destacado</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="activo" name="activo" value="true"
+                                                   th:checked="${producto.activo != null ? producto.activo : true}">
+                                            <label class="custom-control-label font-weight-bold" for="activo">Activo</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <a href="/admin/productos" class="btn btn-secondary">
+                                    <i class="fa fa-arrow-left mr-1"></i>Cancelar
+                                </a>
+                                <button type="submit" class="btn text-white" style="background: #c49b63;">
+                                    <i class="fa fa-save mr-1"></i>Guardar Producto
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{base :: footer}"></div>
+    <div th:replace="~{base :: scripts}"></div>
+    <div th:replace="~{base :: floating-buttons}"></div>
+
+    <script>
+        function previewImagen(input) {
+            var nombreArchivoTexto = document.getElementById('nombreArchivoTexto');
+            var previewContainer = document.getElementById('previewContainer');
+            var imagenPreview = document.getElementById('imagenPreview');
+            var imagenActual = document.getElementById('imagenActual');
+
+            if (input.files && input.files[0]) {
+                var file = input.files[0];
+
+                // Validar formato
+                var ext = file.name.split('.').pop().toLowerCase();
+                if (ext !== 'jpg' && ext !== 'jpeg' && ext !== 'png') {
+                    alert('Formato no permitido. Solo se aceptan: JPG, PNG');
+                    input.value = '';
+                    nombreArchivoTexto.value = 'Ningún archivo seleccionado';
+                    previewContainer.style.display = 'none';
+                    return;
+                }
+
+                // Validar tamaño (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert('La imagen no debe superar los 5MB');
+                    input.value = '';
+                    nombreArchivoTexto.value = 'Ningún archivo seleccionado';
+                    previewContainer.style.display = 'none';
+                    return;
+                }
+
+                // Mostrar nombre del archivo en el cuadro de texto
+                nombreArchivoTexto.value = file.name;
+
+                // Mostrar preview
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    imagenPreview.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                    if (imagenActual) {
+                        imagenActual.parentElement.style.display = 'none';
+                    }
+                };
+                reader.readAsDataURL(file);
+            } else {
+                // Si no hay archivo, restaurar el texto original
+                if (imagenActual) {
+                    nombreArchivoTexto.value = 'Imagen actual: ' + imagenActual.src.split('/').pop();
+                } else {
+                    nombreArchivoTexto.value = 'Ningún archivo seleccionado';
+                }
+                previewContainer.style.display = 'none';
+                if (imagenActual) {
+                    imagenActual.parentElement.style.display = 'block';
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <meta charset="utf-8">
+    <title>Admin - Mensaje</title>
+</head>
+<body>
+    <div th:replace="~{base :: navbar}"></div>
+
+    <div class="container-fluid page-header mb-5 position-relative overlay-bottom">
+        <div class="d-flex flex-column align-items-center justify-content-center pt-0 pt-lg-5" style="min-height: 400px">
+            <h1 class="display-4 mb-3 mt-0 mt-lg-5 text-white text-uppercase">Detalle del Mensaje</h1>
+            <div class="d-inline-flex mb-lg-5">
+                <p class="m-0 text-white"><a class="text-white" href="/">Inicio</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white"><a class="text-white" href="/admin">Admin</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white"><a class="text-white" href="/admin/contactos">Contactos</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white">Detalle</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid pt-5">
+        <div class="row px-xl-5 justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header text-white" style="background: #c49b63;">
+                        <h5 class="mb-0"><i class="fa fa-envelope-open mr-2"></i>Mensaje de Contacto</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong><i class="fa fa-user mr-1"></i>Nombre:</strong></p>
+                                <p class="mb-3" th:text="${contacto.nombre}">Nombre</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong><i class="fa fa-envelope mr-1"></i>Email:</strong></p>
+                                <p class="mb-3">
+                                    <a th:href="'mailto:' + ${contacto.email}" th:text="${contacto.email}" style="color: #c49b63;">email</a>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <p class="mb-1"><strong><i class="fa fa-tag mr-1"></i>Asunto:</strong></p>
+                            <p class="mb-0 font-weight-bold" style="font-size: 1.1rem;" th:text="${contacto.asunto}">Asunto</p>
+                        </div>
+                        <hr>
+                        <div class="mb-3">
+                            <p class="mb-1"><strong><i class="fa fa-comment mr-1"></i>Mensaje:</strong></p>
+                            <div class="p-3 rounded" style="background: #f8f9fa; white-space: pre-wrap;" th:text="${contacto.mensaje}">Contenido del mensaje</div>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="fa fa-clock mr-1"></i>Recibido: <span th:text="${contacto.fechaCreacion != null ? #temporals.format(contacto.fechaCreacion, 'dd/MM/yyyy HH:mm') : '-'}">-</span>
+                            </small>
+                            <span class="badge badge-success" th:if="${contacto.leido}"><i class="fa fa-check mr-1"></i>Leído</span>
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <a href="/admin/contactos" class="btn btn-secondary">
+                            <i class="fa fa-arrow-left mr-1"></i>Volver
+                        </a>
+                        <form th:action="@{'/admin/contactos/' + ${contacto.id} + '/eliminar'}" method="post"
+                              onsubmit="return confirm('¿Eliminar este mensaje?');">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fa fa-trash mr-1"></i>Eliminar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{base :: footer}"></div>
+    <div th:replace="~{base :: scripts}"></div>
+    <div th:replace="~{base :: floating-buttons}"></div>
+</body>
+</html>

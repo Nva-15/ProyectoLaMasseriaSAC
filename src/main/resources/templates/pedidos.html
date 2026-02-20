@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>La Masseria - Pedidos</title>
+    
+    <style>
+        .floating-cart-btn {
+            position: fixed;
+            bottom: 120px;
+            left: 30px;
+            width: 70px;
+            height: 70px;
+            background: #c49b63;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 3px solid white;
+            cursor: pointer;
+        }
+        
+        .floating-cart-btn .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+        
+        /* Estilos para datos del usuario */
+        .user-info {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-left: 5px solid #c49b63;
+        }
+        
+        .user-info i {
+            color: #c49b63;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar (usando fragmento de base.html) -->
+    <div th:replace="~{base :: navbar}"></div>
+
+    <!-- Page Header -->
+    <div class="container-fluid page-header mb-5 position-relative overlay-bottom">
+        <div class="d-flex flex-column align-items-center justify-content-center pt-0 pt-lg-5" style="min-height: 400px">
+            <h1 class="display-4 mb-3 mt-0 mt-lg-5 text-white text-uppercase">Realiza tu Pedido</h1>
+            <div class="d-inline-flex mb-lg-5">
+                <p class="m-0 text-white"><a class="text-white" href="/">Inicio</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white">Pedidos</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón flotante del carrito (consistente con otras páginas) -->
+    <div class="floating-cart-btn" id="floating-cart-btn" onclick="window.location.href='/pedidos'">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count" id="floating-cart-count">0</span>
+    </div>
+
+    <!-- Sección de Pedidos -->
+    <div class="container-fluid py-5">
+        <div class="container">
+            <div class="section-title text-center">
+                <h4 class="text-primary text-uppercase" style="letter-spacing: 5px;">Pedidos Online</h4>
+                <h1 class="display-4">Realiza tus pedidos con facilidad</h1>
+            </div>
+
+            <!-- Mensaje de carrito vacío -->
+            <div id="empty-cart" style="text-align: center; padding: 50px; background: #f8f9fa; border-radius: 12px; margin: 30px 0; display: none;">
+                <i class="fas fa-shopping-cart" style="font-size: 5rem; color: #c49b63; margin-bottom: 20px;"></i>
+                <h3 style="color: #333; margin-bottom: 15px;">Tu carrito está vacío</h3>
+                <p style="color: #666; margin-bottom: 25px;">Agrega algunos productos deliciosos para comenzar tu pedido.</p>
+                <a href="/menu/desayunos" style="background: transparent; color: #c49b63; border: 2px solid #c49b63; border-radius: 30px; padding: 10px 30px; font-weight: 600; text-decoration: none; display: inline-block;">Ver Menú</a>
+            </div>
+
+            <!-- Carrito -->
+            <div id="carrito-container">
+                <div class="table-responsive">
+                    <table style="width: 100%; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.08); border-collapse: collapse;">
+                        <thead style="background: #c49b63; color: white;">
+                            <tr>
+                                <th style="padding: 15px; text-align: left; font-weight: 600;">Producto</th>
+                                <th style="padding: 15px; text-align: left; font-weight: 600;">Imagen</th>
+                                <th style="padding: 15px; text-align: left; font-weight: 600;">Precio</th>
+                                <th style="padding: 15px; text-align: left; font-weight: 600;">Cantidad</th>
+                                <th style="padding: 15px; text-align: left; font-weight: 600;">Total</th>
+                                <th style="padding: 15px; text-align: left; font-weight: 600;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="items-carrito"></tbody>
+                        <tfoot>
+                            <tr style="background: #f8f9fa;">
+                                <td colspan="4" style="padding: 15px; text-align: right;"><strong>Total a pagar:</strong></td>
+                                <td colspan="2" style="padding: 15px;"><strong id="total-carrito">S/ 0.00</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Método de Entrega -->
+                <div style="background: white; border-radius: 12px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); margin-top: 30px;">
+                    <h4 style="color: #333; margin-bottom: 20px; font-weight: 600;">¿Cómo deseas recibir tu pedido?</h4>
+                    <div style="display: inline-block; margin-right: 30px;">
+                        <input type="radio" name="metodoEntrega" id="recoger" value="RECOGER" checked style="margin-right: 8px;">
+                        <label for="recoger" style="cursor: pointer;">Ir a recoger</label>
+                    </div>
+                    <div style="display: inline-block;">
+                        <input type="radio" name="metodoEntrega" id="domicilio" value="DOMICILIO" style="margin-right: 8px;">
+                        <label for="domicilio" style="cursor: pointer;">Envío a domicilio</label>
+                    </div>
+                    
+                    <!-- Campo de dirección (solo si elige envío) -->
+                    <div id="campo-direccion" style="margin-top: 20px; display: none;">
+                        <input type="text" style="width: 100%; border: 2px solid #e0d6cc; border-radius: 8px; padding: 12px 15px;" 
+                               id="direccion" placeholder="Ingresa tu dirección completa"
+                               th:value="${direccion}">
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
+                    <button id="btn-confirmar" style="background: #28a745; color: white; border: none; border-radius: 30px; padding: 12px 30px; font-weight: 600; cursor: pointer; font-size: 1rem;">
+                        <i class="fas fa-check mr-2"></i>Confirmar Pedido
+                    </button>
+                    <a href="/menu/desayunos" style="background: transparent; color: #c49b63; border: 2px solid #c49b63; border-radius: 30px; padding: 10px 30px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center;">
+                        <i class="fas fa-plus mr-2"></i>Seguir comprando
+                    </a>
+                </div>
+            </div>
+
+            <!-- Formulario de Pago (con datos pre-llenados) -->
+            <div id="formulario-pago" style="background: white; border-radius: 12px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); margin-top: 30px; display: none;">
+                <h4 style="color: #333; margin-bottom: 20px; font-weight: 600;">Confirma tus datos para finalizar</h4>
+                
+                <!-- Formulario que envía al backend -->
+                <form id="form-pedido" method="POST" th:action="@{/pedidos/guardar}">
+                    <!-- Datos pre-llenados del usuario (ocultos) -->
+                    <input type="hidden" name="cliente" th:value="${nombreCompleto}" id="cliente-hidden">
+                    <input type="hidden" name="correo" th:value="${email}" id="correo-hidden">
+                    
+                    <!-- Campos visibles (pueden editarse) -->
+                    <div style="margin-bottom: 15px;">
+                        <label for="nombre" style="font-weight: 500; color: #555; display: block; margin-bottom: 5px;"><i class="fas fa-user" style="color: #c49b63; margin-right: 8px;"></i>Nombre completo</label>
+                        <input type="text" style="width: 100%; border: 2px solid #e0d6cc; border-radius: 8px; padding: 10px  15px;" 
+                               id="nombre" name="nombre" th:value="${nombreCompleto}" required>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label for="correo" style="font-weight: 500; color: #555; display: block; margin-bottom: 5px;"><i class="fas fa-envelope" style="color: #c49b63; margin-right: 8px;"></i>Correo electrónico</label>
+                        <input type="email" style="width: 100%; border: 2px solid #e0d6cc; border-radius: 8px; padding: 10px 15px;" 
+                               id="correo" name="correo" th:value="${email}" required>
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label for="telefono" style="font-weight: 500; color: #555; display: block; margin-bottom: 5px;"><i class="fas fa-phone" style="color: #c49b63; margin-right: 8px;"></i>Teléfono</label>
+                        <input type="tel" style="width: 100%; border: 2px solid #e0d6cc; border-radius: 8px; padding: 10px 15px;" 
+                               id="telefono" name="telefono" th:value="${telefono}" required>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label for="nota" style="font-weight: 500; color: #555; display: block; margin-bottom: 5px;"><i class="fas fa-sticky-note" style="color: #c49b63; margin-right: 8px;"></i>Nota</label>
+                        <input type="text" style="width: 100%; border: 2px solid #e0d6cc; border-radius: 8px; padding: 10px 15px;" 
+                               id="notas" name="notas" placeholder="Escribe una nota para tu pedido (opcional)">
+                    </div>
+                    
+                    <!-- Campos ocultos para los datos del pedido -->
+                    <input type="hidden" name="metodoEntrega" id="metodoEntrega-hidden" value="RECOGER">
+                    <input type="hidden" name="direccion" id="direccion-hidden" th:value="${direccion}">
+                    <input type="hidden" name="total" id="total-hidden" value="0">
+                    <input type="hidden" name="detalles" id="detalles-hidden" value="">
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label for="metodo-pago" style="font-weight: 500; color: #555; display: block; margin-bottom: 5px;"><i class="fas fa-credit-card" style="color: #c49b63; margin-right: 8px;"></i>Método de pago</label>
+                        <select style="width: 100%; border: 2px solid #e0d6cc; border-radius: 8px; padding: 10px 15px;" 
+                                id="metodo-pago" name="metodoPago" required>
+                            <option value="">Selecciona un método</option>
+                            <option value="EFECTIVO">Efectivo</option>
+                            <option value="YAPE">Yape</option>
+                            <option value="PLIN">Plin</option>
+                            <option value="TARJETA">Tarjeta</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Información adicional según método de pago -->
+                    <div id="extra-pago"></div>
+                    
+                    <div style="background: #f8f9fa; border-radius: 8px; padding: 15px; margin: 20px 0;">
+                        <h5 style="margin-bottom: 10px;">Resumen del pedido</h5>
+                        <div id="resumen-items"></div>
+                        <hr>
+                        <p style="font-size: 1.2rem; font-weight: bold; margin: 10px 0;">
+                            Total: <span id="resumen-total">S/ 0.00</span>
+                        </p>
+                    </div>
+                    
+                    <button type="submit" style="background: #28a745; color: white; border: none; border-radius: 30px; padding: 12px 30px; font-weight: 600; cursor: pointer; width: 100%;">
+                        <i class="fas fa-check-circle mr-2"></i>Finalizar Pedido
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div th:replace="~{base :: footer}"></div>
+    
+    <!-- Scripts -->
+    <div th:replace="~{base :: scripts}"></div>
+
+    <!-- Script para pedidos -->
+   <script>
+    // Función para actualizar contador (debe estar disponible globalmente)
+    window.actualizarContadorCarrito = function() {
+        const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+        const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+        const floatingCount = document.getElementById('floating-cart-count');
+        if (floatingCount) {
+            floatingCount.textContent = totalItems;
+        }
+    };
+
+    // Función para mostrar mensajes flotantes
+    function mostrarMensaje(tipo, texto) {
+        const alerta = $(`
+            <div class="alert alert-${tipo} alert-custom alert-dismissible fade show" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;">
+                <i class="fa ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
+                <span>${texto}</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        `);
+        
+        $('body').append(alerta);
+        
+        // Auto-cerrar después de 5 segundos
+        setTimeout(() => {
+            alerta.fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 5000);
+    }
+
+    $(document).ready(function() {
+        cargarCarrito();
+        
+        // Mostrar/ocultar campo de dirección
+        $('input[name="metodoEntrega"]').change(function() {
+            const metodo = $(this).val();
+            $('#metodoEntrega-hidden').val(metodo);
+            
+            if (metodo === 'DOMICILIO') {
+                $('#campo-direccion').slideDown(300);
+            } else {
+                $('#campo-direccion').slideUp(300);
+            }
+        });
+        
+        // Botón confirmar pedido
+        $('#btn-confirmar').click(function() {
+            const items = JSON.parse(localStorage.getItem('carrito')) || [];
+            if (items.length === 0) {
+                mostrarMensaje('warning', 'Tu carrito está vacío');
+                return;
+            }
+            
+            // Actualizar campos ocultos
+            const total = items.reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+            $('#total-hidden').val(total.toFixed(2));
+            
+            // Crear un resumen del pedido para enviar
+            const detalles = items.map(item => ({
+                id: item.id,
+                nombre: item.nombre,
+                cantidad: item.cantidad,
+                precio: item.precio,
+                subtotal: item.precio * item.cantidad
+            }));
+            
+            $('#detalles-hidden').val(JSON.stringify(detalles));
+            
+            // Actualizar método de entrega
+            const metodoEntrega = $('input[name="metodoEntrega"]:checked').val();
+            $('#metodoEntrega-hidden').val(metodoEntrega);
+            
+            // Actualizar dirección
+            if (metodoEntrega === 'DOMICILIO') {
+                $('#direccion-hidden').val($('#direccion').val());
+            }
+            
+            $('#formulario-pago').slideDown(500);
+            $('html, body').animate({
+                scrollTop: $('#formulario-pago').offset().top - 100
+            }, 500);
+        });
+        
+        // Método de pago cambia
+        $('#metodo-pago').change(function() {
+            const metodo = $(this).val();
+            let html = '';
+            
+            if (metodo === 'YAPE') {
+                html = `
+                    <div style="background: #d1ecf1; border: 2px solid #bee5eb; border-radius: 8px; color: #0c5460; padding: 15px; margin-top: 15px;">
+                        <strong style="font-size: 1.1rem; display: block; margin-bottom: 8px;">📱 Yape:</strong>
+                        <span style="font-size: 1.2rem; font-weight: bold;">912 594 051</span><br>
+                        <small style="opacity: 0.8;">Paga con Yape y te contactaremos para confirmar</small>
+                    </div>
+                `;
+            } else if (metodo === 'PLIN') {
+                html = `
+                    <div style="background: #d1ecf1; border: 2px solid #bee5eb; border-radius: 8px; color: #0c5460; padding: 15px; margin-top: 15px;">
+                        <strong style="font-size: 1.1rem; display: block; margin-bottom: 8px;">💙 Plin:</strong>
+                        <span style="font-size: 1.2rem; font-weight: bold;">912 594 051</span><br>
+                        <small style="opacity: 0.8;">Paga con Plin y confirma tu pago</small>
+                    </div>
+                `;
+            }
+            
+            $('#extra-pago').html(html);
+        });
+        
+        // ===== ENVÍO DEL FORMULARIO =====
+        $('#form-pedido').on('submit', function(e) {
+            e.preventDefault(); // Prevenir envío normal primero
+            
+            const items = JSON.parse(localStorage.getItem('carrito')) || [];
+            const metodoEntrega = $('input[name="metodoEntrega"]:checked').val();
+            
+            // Validaciones
+            if (items.length === 0) {
+                mostrarMensaje('warning', 'Tu carrito está vacío');
+                return;
+            }
+            
+            if (metodoEntrega === 'DOMICILIO' && !$('#direccion').val()) {
+                mostrarMensaje('warning', 'Por favor ingresa tu dirección para envío a domicilio');
+                return;
+            }
+            
+            if (!$('#nombre').val() || !$('#telefono').val() || !$('#metodo-pago').val()) {
+                mostrarMensaje('warning', 'Por favor completa todos los campos obligatorios');
+                return;
+            }
+            
+            // Mostrar indicador de carga
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalText = submitBtn.text();
+            submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i>Procesando...');
+            
+            // Preparar datos para enviar
+            const formData = {
+                cliente: $('#nombre').val(),
+                correo: $('#correo').val(),
+                telefono: $('#telefono').val(),
+                total: $('#total-hidden').val(),
+                metodoEntrega: $('#metodoEntrega-hidden').val(),
+                direccion: $('#direccion-hidden').val() || '',
+                metodoPago: $('#metodo-pago').val(),
+                notas: $('#notas').val(),
+                detalles: $('#detalles-hidden').val()
+            };
+            
+            // Enviar mediante AJAX
+            $.ajax({
+                url: '/pedidos/guardar',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    // ===== LIMPIAR CARRITO =====
+                    localStorage.removeItem('carrito');
+                    
+                    // Actualizar contador flotante
+                    actualizarContadorCarrito();
+                    
+                    // Restaurar botón
+                    submitBtn.prop('disabled', false).html(originalText);
+                    
+                    // Mostrar mensaje de éxito
+                    mostrarMensaje('success', '¡Pedido realizado con éxito! Te contactaremos pronto.');
+                    
+                    // Redirigir después de 2 segundos para que vean el mensaje
+                    setTimeout(() => {
+                        window.location.href = '/pedidos?exito=true';
+                    }, 2000);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                    
+                    // Restaurar botón
+                    submitBtn.prop('disabled', false).html(originalText);
+                    
+                    // Mostrar mensaje de error
+                    let mensajeError = 'Error al procesar el pedido. Por favor intenta nuevamente.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        mensajeError = xhr.responseJSON.message;
+                    }
+                    mostrarMensaje('danger', mensajeError);
+                }
+            });
+        });
+    });
+    
+    function cargarCarrito() {
+        const items = JSON.parse(localStorage.getItem('carrito')) || [];
+        let html = '';
+        let total = 0;
+        
+        if (items.length === 0) {
+            $('#carrito-container').hide();
+            $('#empty-cart').show();
+            return;
+        }
+        
+        $('#carrito-container').show();
+        $('#empty-cart').hide();
+        
+        items.forEach((item, index) => {
+            const subtotal = item.precio * item.cantidad;
+            total += subtotal;
+            
+            html += `
+                <tr>
+                    <td style="padding: 15px; border-bottom: 1px solid #f0f0f0; vertical-align: middle;">${item.nombre}</td>
+                    <td style="padding: 15px; border-bottom: 1px solid #f0f0f0; vertical-align: middle;">
+                        <img src="${item.imagen}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid #c49b63;" alt="${item.nombre}">
+                    </td>
+                    <td style="padding: 15px; border-bottom: 1px solid #f0f0f0; vertical-align: middle;">S/ ${item.precio.toFixed(2)}</td>
+                    <td style="padding: 15px; border-bottom: 1px solid #f0f0f0; vertical-align: middle;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="width: 30px; height: 30px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold;" onclick="actualizarCantidad(${index}, -1)">−</span>
+                            <input type="number" style="width: 50px; height: 35px; text-align: center; border: 1px solid #ddd; border-radius: 4px; font-weight: 600;" value="${item.cantidad}" min="1" max="10" id="cart-qty-${index}" readonly>
+                            <span style="width: 30px; height: 30px; background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-weight: bold;" onclick="actualizarCantidad(${index}, 1)">+</span>
+                        </div>
+                    </td>
+                    <td style="padding: 15px; border-bottom: 1px solid #f0f0f0; vertical-align: middle;">S/ ${subtotal.toFixed(2)}</td>
+                    <td style="padding: 15px; border-bottom: 1px solid #f0f0f0; vertical-align: middle;">
+                        <button style="background: #dc3545; color: white; border: none; border-radius: 4px; padding: 5px 10px; font-size: 0.8rem; cursor: pointer;" onclick="eliminarItem(${index})">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        $('#items-carrito').html(html);
+        $('#total-carrito').html(`S/ ${total.toFixed(2)}`);
+        $('#total-hidden').val(total.toFixed(2));
+        
+        // Actualizar resumen
+        actualizarResumen(items, total);
+    }
+    
+    function actualizarResumen(items, total) {
+        let html = '<ul style="list-style: none; padding: 0;">';
+        items.forEach(item => {
+            html += `<li style="margin-bottom: 8px;">• ${item.cantidad}x ${item.nombre} - S/ ${(item.precio * item.cantidad).toFixed(2)}</li>`;
+        });
+        html += '</ul>';
+        $('#resumen-items').html(html);
+        $('#resumen-total').html(`S/ ${total.toFixed(2)}`);
+    }
+    
+    function actualizarCantidad(index, cambio) {
+        const items = JSON.parse(localStorage.getItem('carrito')) || [];
+        let nuevaCantidad = items[index].cantidad + cambio;
+        
+        if (nuevaCantidad < 1) nuevaCantidad = 1;
+        if (nuevaCantidad > 10) nuevaCantidad = 10;
+        
+        items[index].cantidad = nuevaCantidad;
+        localStorage.setItem('carrito', JSON.stringify(items));
+        cargarCarrito();
+        
+        if (window.actualizarContadorCarrito) {
+            window.actualizarContadorCarrito();
+        }
+    }
+    
+    function eliminarItem(index) {
+        const items = JSON.parse(localStorage.getItem('carrito')) || [];
+        items.splice(index, 1);
+        localStorage.setItem('carrito', JSON.stringify(items));
+        cargarCarrito();
+        
+        if (window.actualizarContadorCarrito) {
+            window.actualizarContadorCarrito();
+        }
+    }
+    
+    // Inicializar contador
+    document.addEventListener('DOMContentLoaded', function() {
+        actualizarContadorCarrito();
+    });
+</script>
+    
+    <!-- Botones flotantes -->
+    <div th:replace="~{base :: floating-buttons}"></div>
+</body>
+</html>

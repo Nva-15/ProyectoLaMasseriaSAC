@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <title>Registro - La Masseria</title>
+</head>
+<body>
+    <!-- FORMULARIO ENCIMA DEL NAVBAR -->
+    <div class="container-fluid py-4" style="background: white;">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg border-0 rounded-lg">
+                    <div class="card-header" style="background: #c49b63; color: white; border-radius: 10px 10px 0 0;">
+                        <h3 class="text-center font-weight-light my-2">
+                            <i class="fa fa-user-plus mr-2"></i>Registro de Usuario
+                        </h3>
+                        <p class="text-center mb-0" style="opacity: 0.9;">Crea tu cuenta en La Masseria</p>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <!-- Mensajes de error/éxito -->
+                        <div th:if="${param.error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fa fa-exclamation-circle mr-2"></i>
+                            <span th:text="${error} ?: 'Error en el registro. Verifica los datos.'"></span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        
+                        <div th:if="${param.email != null}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <i class="fa fa-envelope mr-2"></i>
+                            <span>El email ya está registrado</span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        
+                        <div th:if="${param.dni != null}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <i class="fa fa-id-card mr-2"></i>
+                            <span>El DNI ya está registrado</span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        
+                        <div th:if="${param.password != null}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <i class="fa fa-lock mr-2"></i>
+                            <span>Las contraseñas no coinciden</span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <form th:action="@{/registro}" method="POST">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="small mb-1" for="nombres">
+                                            <i class="fa fa-user text-primary mr-1"></i>Nombres
+                                        </label>
+                                        <input class="form-control py-3" id="nombres" name="nombres" 
+                                               type="text" placeholder="Ingresa tus nombres" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="small mb-1" for="apellidos">
+                                            <i class="fa fa-user text-primary mr-1"></i>Apellidos
+                                        </label>
+                                        <input class="form-control py-3" id="apellidos" name="apellidos" 
+                                               type="text" placeholder="Ingresa tus apellidos" required />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="small mb-1" for="dni">
+                                            <i class="fa fa-id-card text-primary mr-1"></i>DNI
+                                        </label>
+                                        <input class="form-control py-3" id="dni" name="dni" 
+                                               type="text" maxlength="8" pattern="[0-9]{8}" 
+                                               title="8 dígitos numéricos" 
+                                               placeholder="12345678" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="small mb-1" for="telefono">
+                                            <i class="fa fa-phone text-primary mr-1"></i>Teléfono
+                                        </label>
+                                        <input class="form-control py-3" id="telefono" name="telefono" 
+                                               type="tel" placeholder="987654321" required />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="small mb-1" for="direccion">
+                                    <i class="fa fa-map-marker-alt text-primary mr-1"></i>Dirección
+                                </label>
+                                <input class="form-control py-3" id="direccion" name="direccion" 
+                                       type="text" placeholder="Ingresa tu dirección" required />
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="small mb-1" for="email">
+                                    <i class="fa fa-envelope text-primary mr-1"></i>Correo Electrónico
+                                </label>
+                                <input class="form-control py-3" id="email" name="email" 
+                                       type="email" placeholder="ejemplo@correo.com" required />
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="small mb-1" for="password">
+                                            <i class="fa fa-lock text-primary mr-1"></i>Contraseña
+                                        </label>
+                                        <input class="form-control py-3" id="password" name="password" 
+                                               type="password" minlength="6" 
+                                               placeholder="Mínimo 6 caracteres" required />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="small mb-1" for="confirmPassword">
+                                            <i class="fa fa-lock text-primary mr-1"></i>Verificar Contraseña
+                                        </label>
+                                        <input class="form-control py-3" id="confirmPassword" name="confirmPassword" 
+                                               type="password" minlength="6" 
+                                               placeholder="Repite tu contraseña" required />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group form-check mt-3">
+                                <input type="checkbox" class="form-check-input" id="terminos" required>
+                                <label class="form-check-label" for="terminos">
+                                    Acepto los <a href="#" target="_blank" class="text-primary">términos y condiciones</a>
+                                </label>
+                            </div>
+                            
+                            <div class="form-group d-flex justify-content-center mt-4">
+                                <button type="submit" class="btn btn-success btn-lg px-5" style="background: #c49b63; border: none;">
+                                    <i class="fa fa-user-plus mr-2"></i>Registrarse
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="text-center">
+                            <p class="mb-2">
+                                <a href="/login" class="text-primary">
+                                    <i class="fa fa-sign-in-alt mr-1"></i>¿Ya tienes cuenta? Inicia sesión aquí
+                                </a>
+                            </p>
+                            <p class="mb-0">
+                                <a href="/" class="text-secondary">
+                                    <i class="fa fa-home mr-1"></i>Volver al inicio
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{base :: footer}"></div>
+    <div th:replace="~{base :: scripts}"></div>
+    <div th:replace="~{base :: floating-buttons}"></div>
+
+    <script>
+        $(document).ready(function() {
+            // Validación de contraseñas
+            $('form').on('submit', function(e) {
+                var pass = $('#password').val();
+                var confirm = $('#confirmPassword').val();
+                
+                if (pass !== confirm) {
+                    e.preventDefault();
+                    $('#confirmPassword').addClass('is-invalid');
+                    alert('Las contraseñas no coinciden');
+                } else {
+                    $('#confirmPassword').removeClass('is-invalid');
+                }
+            });
+            
+            // Validación de DNI (solo números)
+            $('#dni').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+            
+            // Validación de teléfono (solo números)
+            $('#telefono').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        });
+    </script>
+    
+    <style>
+        .is-invalid {
+            border-color: #dc3545 !important;
+        }
+        .is-invalid:focus {
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+        }
+    </style>
+</body>
+</html>

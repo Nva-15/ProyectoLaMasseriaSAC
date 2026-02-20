@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Reservaciones - La Masseria</title>
+    
+    <!-- Estilos adicionales para el selector de mesas y datetimepicker -->
+    <link href="/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+    
+    <style>
+        /* Estilos para el selector de mesas */
+        .table-selector {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .tables {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .custom-table {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid #c49b63;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .custom-table:hover {
+            background: #c49b63;
+            transform: scale(1.1);
+            border-color: white;
+        }
+        
+        .custom-table.selected {
+            background: #c49b63;
+            border-color: white;
+            box-shadow: 0 0 15px #c49b63;
+        }
+        
+        /* Estilos MEJORADOS para el formulario */
+        .form-control, .custom-select {
+            color: #333333 !important;
+            background-color: #ffffff !important;
+            border: 2px solid #c49b63 !important;
+            font-weight: 500;
+            height: 49px;
+        }
+        
+        .form-control::placeholder {
+            color: #999999 !important;
+            opacity: 1;
+        }
+        
+        .form-control:focus, .custom-select:focus {
+            border-color: #8B4513 !important;
+            box-shadow: 0 0 0 0.2rem rgba(196, 155, 99, 0.25);
+        }
+        
+        /* Estilo para inputs readonly */
+        .form-control[readonly] {
+            background-color: #f8f9fa !important;
+            color: #666666 !important;
+            cursor: not-allowed;
+        }
+        
+        /* Estilos para selects */
+        .custom-select option {
+            color: #333333;
+            background-color: white;
+        }
+        
+        /* Estilos para labels */
+        .form-group label {
+            color: white !important;
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: block;
+            text-align: left;
+            font-size: 1rem;
+        }
+        
+        /* Estilos para el campo de mesa readonly */
+        #campoNumeroMesa {
+            cursor: pointer;
+            background-color: #ffffff !important;
+            color: #333333 !important;
+        }
+        
+        /* Mensajes de alerta - CORREGIDO: sobre el navbar pero sin bloquear */
+        .alert-custom {
+            position: fixed;
+            top: 80px; 
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            border-left: 5px solid;
+            pointer-events: none;  
+            animation: slideIn 0.3s ease;
+        }
+        
+        .alert-custom .close {
+            pointer-events: auto;  
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left-color: #dc3545;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border-left-color: #ffc107;
+        }
+        
+        /* Botón de reservar */
+        .btn-primary {
+            background: #c49b63 !important;
+            border: none !important;
+            color: white !important;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: #8B4513 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(196, 155, 99, 0.4);
+        }
+        
+        /* Estilos para inputs de fecha y hora nativos */
+        input[type="date"], input[type="time"] {
+            color: #333333 !important;
+            background-color: #ffffff !important;
+            border: 2px solid #c49b63 !important;
+            padding: 10px;
+            border-radius: 10px;
+            width: 100%;
+            height: 49px;
+        }
+        
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            background-color: #c49b63;
+            padding: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        /* Responsive para móviles */
+        @media (max-width: 768px) {
+            .tables {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .custom-table {
+                width: 50px;
+                height: 50px;
+                font-size: 1rem;
+            }
+            
+            .alert-custom {
+                top: 60px;
+                right: 10px;
+                left: 10px;
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mensajes flotantes de éxito/error - JavaScript los manejará -->
+    <div id="mensaje-container"></div>
+
+    <!-- Navbar (usando fragmento) -->
+    <div th:replace="~{base :: navbar}"></div>
+
+    <!-- Page Header -->
+    <div class="container-fluid page-header mb-5 position-relative overlay-bottom">
+        <div class="d-flex flex-column align-items-center justify-content-center pt-0 pt-lg-5" style="min-height: 400px">
+            <h1 class="display-4 mb-3 mt-0 mt-lg-5 text-white text-uppercase">Solicita tu reserva</h1>
+            <div class="d-inline-flex mb-lg-5">
+                <p class="m-0 text-white"><a class="text-white" href="/">Inicio</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white">Reservaciones</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reservaciones Inicio -->
+    <div class="container-fluid py-5">
+        <div class="container">
+            <div class="reservation position-relative overlay-top overlay-bottom">
+                <div class="row align-items-center" style="min-height: 100%;">
+                    <div class="col-lg-6 my-5 my-lg-0">
+                        <div class="p-5 d-flex flex-column justify-content-center h-100">
+                            <!-- Información del usuario logueado -->
+                            <div class="mb-4 bg-dark p-3 rounded" style="background: rgba(196, 155, 99, 0.2) !important;">
+                                <h4 class="text-white">
+                                    <i class="fa fa-user-circle mr-2"></i>Reservando para:
+                                </h4>
+                                <p class="text-white mb-1">
+                                    <strong th:text="${nombreUsuario}">Usuario</strong>
+                                </p>
+                                <p class="text-white mb-0">
+                                    <i class="fa fa-envelope mr-2"></i><span th:text="${emailUsuario}">email@ejemplo.com</span>
+                                </p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h2 class="display-3 text-primary">Des. del 30%</h2>
+                                <h2 class="text-white">Con Tus Reservas Online</h2>
+                            </div>
+                            <p class="text-white">Reservar nunca fue tan delicioso. 
+                                Asegura tu mesa y déjate envolver por la magia de La Masseria.</p>
+                            <ul class="list-inline text-white m-0">
+                                <li class="py-2"><i class="fa fa-check text-primary mr-3"></i>Cada visita es un momento especial.</li>
+                                <li class="py-2"><i class="fa fa-check text-primary mr-3"></i>Cafés que enamoran y postres que abrazan el alma.</li>
+                                <li class="py-2"><i class="fa fa-check text-primary mr-3"></i>Ven y descubre la esencia de La Masseria.</li>
+                            </ul>
+                            
+                            <!-- Selector de Mesas -->
+                            <div class="table-selector mt-4">
+                                <h4 class="text-white mb-3">Selecciona Tu Mesa</h4>
+                                <div class="tables">
+                                    <button type="button" class="custom-table" data-id="1">1</button>
+                                    <button type="button" class="custom-table" data-id="2">2</button>
+                                    <button type="button" class="custom-table" data-id="3">3</button>
+                                    <button type="button" class="custom-table" data-id="4">4</button>
+                                    <button type="button" class="custom-table" data-id="5">5</button>
+                                    <button type="button" class="custom-table" data-id="6">6</button>
+                                    <button type="button" class="custom-table" data-id="7">7</button>
+                                    <button type="button" class="custom-table" data-id="8">8</button>
+                                    <button type="button" class="custom-table" data-id="9">9</button>
+                                    <button type="button" class="custom-table" data-id="10">10</button>
+                                    <button type="button" class="custom-table" data-id="11">11</button>
+                                    <button type="button" class="custom-table" data-id="12">12</button>
+                                </div>
+                                <!-- Campo oculto para guardar la mesa -->
+                                <input type="hidden" id="mesaSeleccionada" name="mesaSeleccionada" />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <div class="text-center p-5" style="background: rgba(51, 33, 29, .8);">
+                            <h1 class="text-white mb-4 mt-5">Reservar Mesa</h1>
+                            
+                            <form id="formReserva" class="mb-5" method="POST" th:action="@{/reservaciones/guardar}">
+                                <!-- Nombre (solo lectura) -->
+                                <div class="form-group text-left">
+                                    <label class="text-white">Nombre completo</label>
+                                    <input type="text" class="form-control" 
+                                           th:value="${nombreUsuario}" placeholder="Nombre completo" readonly />
+                                    <input type="hidden" name="nombre" th:value="${nombreUsuario}" />
+                                </div>
+                                
+                                <!-- Email (solo lectura) -->
+                                <div class="form-group text-left">
+                                    <label class="text-white">Correo electrónico</label>
+                                    <input type="email" class="form-control" 
+                                           th:value="${emailUsuario}" placeholder="Correo electrónico" readonly />
+                                    <input type="hidden" name="email" th:value="${emailUsuario}" />
+                                </div>
+                                
+                                <!-- Teléfono (editable) -->
+                                <div class="form-group text-left">
+                                    <label class="text-white">Teléfono de contacto</label>
+                                    <input type="tel" name="telefono" class="form-control" 
+                                           th:value="${telefonoUsuario}" placeholder="Ej: 987654321" required />
+                                </div>
+                                
+                                <!-- Fecha con input nativo HTML5 -->
+                                <div class="form-group text-left">
+                                    <label class="text-white">Fecha de reserva</label>
+                                    <input type="date" name="fecha" class="form-control" 
+                                           th:min="${fechaMinima}" required />
+                                </div>
+                                
+                                <!-- Número de mesa (readonly) -->
+                                <div class="form-group text-left">
+                                    <label class="text-white">Número de mesa</label>
+                                    <input type="text" id="campoNumeroMesa" name="mesa" class="form-control" 
+                                           placeholder="Selecciona una mesa" readonly required />
+                                </div>
+                                
+                                <!-- Hora con input nativo HTML5 - SIN RESTRICCIÓN DE MINUTOS -->
+                                <div class="form-group text-left">
+                                    <label class="text-white">Hora de reserva</label>
+                                    <input type="time" name="hora" class="form-control" 
+                                           min="09:00" max="22:00" required />
+                                    <small class="text-white-50">Horario: 9:00 AM - 10:00 PM</small>
+                                </div>
+                                
+                                <!-- Cantidad de personas -->
+                                <div class="form-group text-left">
+                                    <label class="text-white">Cantidad de personas</label>
+                                    <select name="cantidadPersonas" class="custom-select" required>
+                                        <option value="" disabled selected>Selecciona cantidad</option>
+                                        <option value="1">1 persona</option>
+                                        <option value="2">2 personas</option>
+                                        <option value="3">3 personas</option>
+                                        <option value="4">4 personas</option>
+                                        <option value="5">5 personas</option>
+                                        <option value="6">6 personas</option>
+                                        <option value="7">7+ personas</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Notas adicionales -->
+                                <div class="form-group text-left">
+                                    <label class="text-white">Notas adicionales</label>
+                                    <textarea name="notas" class="form-control" rows="3" 
+                                              placeholder="Alergias, preferencias, ocasión especial..."></textarea>
+                                </div>
+                                
+                                <div>
+                                    <button class="btn btn-primary btn-block font-weight-bold py-3" type="submit">
+                                        <i class="fa fa-calendar-check mr-2"></i>Reservar ahora
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Reservaciones Fin -->
+
+    <!-- Footer -->
+    <div th:replace="~{base :: footer}"></div>
+    
+    <!-- Scripts Base -->
+    <div th:replace="~{base :: scripts}"></div>
+    
+    <script>
+        // Función para mostrar mensajes flotantes
+        function mostrarMensaje(tipo, texto) {
+            const container = document.getElementById('mensaje-container');
+            const mensajeDiv = document.createElement('div');
+            mensajeDiv.className = `alert alert-${tipo} alert-custom alert-dismissible fade show`;
+            mensajeDiv.setAttribute('role', 'alert');
+            mensajeDiv.innerHTML = `
+                <i class="fa ${tipo === 'success' ? 'fa-check-circle' : tipo === 'danger' ? 'fa-exclamation-circle' : 'fa-clock'} mr-2"></i>
+                <span>${texto}</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close" onclick="this.parentElement.remove()">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            `;
+            
+            container.appendChild(mensajeDiv);
+            
+            // Auto-cerrar después de 3 segundos
+            setTimeout(() => {
+                if (mensajeDiv.parentNode) {
+                    mensajeDiv.classList.remove('show');
+                    setTimeout(() => {
+                        if (mensajeDiv.parentNode) {
+                            mensajeDiv.remove();
+                        }
+                    }, 300);
+                }
+            }, 3000);
+        }
+
+        $(document).ready(function() {
+            // Verificar parámetros URL y mostrar mensajes
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            if (urlParams.has('exito')) {
+                mostrarMensaje('success', '¡Reservación realizada con éxito! Te esperamos.');
+            }
+            
+            if (urlParams.has('error')) {
+                const errorMsg = urlParams.get('error') === 'horario' 
+                    ? 'Lo sentimos, ese horario ya no está disponible'
+                    : 'Error en la reservación';
+                mostrarMensaje('danger', errorMsg);
+            }
+            
+            if (urlParams.has('horario')) {
+                mostrarMensaje('warning', 'Lo sentimos, ese horario ya no está disponible');
+            }
+            
+            const botonesMesa = document.querySelectorAll(".custom-table");
+            const campoMesaOculto = document.getElementById("mesaSeleccionada");
+            const campoVisible = document.getElementById("campoNumeroMesa");
+
+            // Selector de mesas
+            botonesMesa.forEach(btn => {
+                btn.addEventListener("click", function() {
+                    botonesMesa.forEach(b => b.classList.remove("selected"));
+                    this.classList.add("selected");
+                    
+                    const numeroMesa = this.getAttribute("data-id");
+                    campoMesaOculto.value = numeroMesa;
+                    campoVisible.value = "Mesa " + numeroMesa;
+                });
+            });
+            
+            // Establecer fecha mínima (hoy)
+            const fechaInput = document.querySelector('input[type="date"][name="fecha"]');
+            if (fechaInput) {
+                const hoy = new Date().toISOString().split('T')[0];
+                fechaInput.setAttribute('min', hoy);
+                
+                // Establecer fecha por defecto a mañana
+                const manana = new Date();
+                manana.setDate(manana.getDate() + 1);
+                fechaInput.value = manana.toISOString().split('T')[0];
+            }
+            
+            // Establecer hora por defecto
+            const horaInput = document.querySelector('input[type="time"][name="hora"]');
+            if (horaInput) {
+                horaInput.value = "12:00";
+            }
+            
+            // Validación antes de enviar
+            $('#formReserva').on('submit', function(e) {
+                if (!campoVisible.value) {
+                    e.preventDefault();
+                    mostrarMensaje('warning', 'Por favor, selecciona una mesa');
+                    return false;
+                }
+            });
+        });
+    </script>
+    
+    <!-- Botones flotantes -->
+    <div th:replace="~{base :: floating-buttons}"></div>
+</body>
+</html>

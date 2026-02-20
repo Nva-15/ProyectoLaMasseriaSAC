@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <meta charset="utf-8">
+    <title>Admin - Dashboard</title>
+</head>
+<body>
+    <div th:replace="~{base :: navbar}"></div>
+
+    <!-- Page Header -->
+    <div class="container-fluid page-header mb-5 position-relative overlay-bottom">
+        <div class="d-flex flex-column align-items-center justify-content-center pt-0 pt-lg-5" style="min-height: 400px">
+            <h1 class="display-4 mb-3 mt-0 mt-lg-5 text-white text-uppercase">Panel de Administración</h1>
+            <div class="d-inline-flex mb-lg-5">
+                <p class="m-0 text-white"><a class="text-white" href="/">Inicio</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white">Dashboard</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid pt-5">
+        <!-- Alertas -->
+        <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa fa-check-circle mr-2"></i>[[${mensaje}]]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa fa-exclamation-circle mr-2"></i>[[${error}]]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+
+        <!-- Tarjetas de Estadísticas -->
+        <div class="row px-xl-5">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #c49b63 !important;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.75rem;">Pedidos Pendientes</h6>
+                                <h2 class="mb-0 font-weight-bold" th:text="${pedidosPendientes}">0</h2>
+                            </div>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(196,155,99,0.15);">
+                                <i class="fa fa-clock fa-lg" style="color: #c49b63;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #28a745 !important;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.75rem;">Ventas de Hoy</h6>
+                                <h2 class="mb-0 font-weight-bold">S/ <span th:text="${#numbers.formatDecimal(ventasHoy, 1, 2)}">0.00</span></h2>
+                            </div>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(40,167,69,0.15);">
+                                <i class="fa fa-dollar-sign fa-lg text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #17a2b8 !important;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.75rem;">Reservaciones Hoy</h6>
+                                <h2 class="mb-0 font-weight-bold" th:text="${reservacionesHoy}">0</h2>
+                            </div>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(23,162,184,0.15);">
+                                <i class="fa fa-calendar-check fa-lg text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #dc3545 !important;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.75rem;">Mensajes Sin Leer</h6>
+                                <h2 class="mb-0 font-weight-bold" th:text="${mensajesNoLeidos}">0</h2>
+                            </div>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(220,53,69,0.15);">
+                                <i class="fa fa-envelope fa-lg text-danger"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Segunda fila -->
+        <div class="row px-xl-5">
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #6f42c1 !important;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.75rem;">Total Usuarios</h6>
+                                <h2 class="mb-0 font-weight-bold" th:text="${totalUsuarios}">0</h2>
+                            </div>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(111,66,193,0.15);">
+                                <i class="fa fa-users fa-lg" style="color: #6f42c1;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #fd7e14 !important;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.75rem;">Total Productos</h6>
+                                <h2 class="mb-0 font-weight-bold" th:text="${totalProductos}">0</h2>
+                            </div>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(253,126,20,0.15);">
+                                <i class="fa fa-coffee fa-lg" style="color: #fd7e14;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #e83e8c !important;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.75rem;">Total Categorías</h6>
+                                <h2 class="mb-0 font-weight-bold" th:text="${totalCategorias}">0</h2>
+                            </div>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(232,62,140,0.15);">
+                                <i class="fa fa-tags fa-lg" style="color: #e83e8c;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4">
+                <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #20c997 !important;">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1" style="font-size: 0.75rem;">Pedidos de Hoy</h6>
+                                <h2 class="mb-0 font-weight-bold" th:text="${pedidosHoy}">0</h2>
+                            </div>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(32,201,151,0.15);">
+                                <i class="fa fa-shopping-bag fa-lg" style="color: #20c997;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accesos rápidos -->
+        <div class="row px-xl-5 mb-4">
+            <div class="col-12">
+                <h4 class="text-uppercase mb-3" style="color: #c49b63; letter-spacing: 2px;">
+                    <i class="fa fa-th-large mr-2"></i>Accesos Rápidos
+                </h4>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6 mb-3">
+                <a href="/admin/pedidos" class="card border-0 shadow-sm text-decoration-none h-100">
+                    <div class="card-body text-center py-4">
+                        <i class="fa fa-shopping-cart fa-2x mb-2" style="color: #c49b63;"></i>
+                        <p class="mb-0 font-weight-bold text-dark">Pedidos</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6 mb-3">
+                <a href="/admin/reservaciones" class="card border-0 shadow-sm text-decoration-none h-100">
+                    <div class="card-body text-center py-4">
+                        <i class="fa fa-calendar-alt fa-2x mb-2" style="color: #c49b63;"></i>
+                        <p class="mb-0 font-weight-bold text-dark">Reservaciones</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6 mb-3">
+                <a href="/admin/productos" class="card border-0 shadow-sm text-decoration-none h-100">
+                    <div class="card-body text-center py-4">
+                        <i class="fa fa-coffee fa-2x mb-2" style="color: #c49b63;"></i>
+                        <p class="mb-0 font-weight-bold text-dark">Productos</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6 mb-3">
+                <a href="/admin/categorias" class="card border-0 shadow-sm text-decoration-none h-100">
+                    <div class="card-body text-center py-4">
+                        <i class="fa fa-tags fa-2x mb-2" style="color: #c49b63;"></i>
+                        <p class="mb-0 font-weight-bold text-dark">Categorías</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6 mb-3">
+                <a href="/admin/usuarios" class="card border-0 shadow-sm text-decoration-none h-100">
+                    <div class="card-body text-center py-4">
+                        <i class="fa fa-users fa-2x mb-2" style="color: #c49b63;"></i>
+                        <p class="mb-0 font-weight-bold text-dark">Usuarios</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-lg-2 col-md-4 col-6 mb-3">
+                <a href="/admin/contactos" class="card border-0 shadow-sm text-decoration-none h-100">
+                    <div class="card-body text-center py-4">
+                        <i class="fa fa-envelope fa-2x mb-2" style="color: #c49b63;"></i>
+                        <p class="mb-0 font-weight-bold text-dark">Contactos</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Últimos pedidos y próximas reservaciones -->
+        <div class="row px-xl-5">
+            <div class="col-lg-6 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header text-white" style="background: #c49b63;">
+                        <h5 class="mb-0"><i class="fa fa-shopping-cart mr-2"></i>Últimos Pedidos</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Cliente</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="pedido : ${ultimosPedidos}">
+                                        <td th:text="${pedido.id}">1</td>
+                                        <td th:text="${pedido.clienteNombre}">Cliente</td>
+                                        <td>S/ <span th:text="${#numbers.formatDecimal(pedido.total, 1, 2)}">0.00</span></td>
+                                        <td>
+                                            <span class="badge badge-pill px-2 py-1"
+                                                  th:classappend="${pedido.estado == 'PENDIENTE' ? 'badge-warning' :
+                                                                    pedido.estado == 'EN_PROCESO' ? 'badge-info' :
+                                                                    pedido.estado == 'ENVIADO' ? 'badge-primary' :
+                                                                    pedido.estado == 'ENTREGADO' ? 'badge-success' : 'badge-danger'}"
+                                                  th:text="${pedido.estado}">PENDIENTE</span>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(ultimosPedidos)}">
+                                        <td colspan="4" class="text-center text-muted py-3">No hay pedidos recientes</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="/admin/pedidos" style="color: #c49b63;">Ver todos los pedidos <i class="fa fa-arrow-right ml-1"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header text-white" style="background: #c49b63;">
+                        <h5 class="mb-0"><i class="fa fa-calendar-alt mr-2"></i>Próximas Reservaciones</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Hora</th>
+                                        <th>Cliente</th>
+                                        <th>Personas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="res : ${proximasReservaciones}">
+                                        <td th:text="${#temporals.format(res.fecha, 'dd/MM/yyyy')}">01/01/2026</td>
+                                        <td th:text="${#temporals.format(res.hora, 'HH:mm')}">12:00</td>
+                                        <td th:text="${res.nombre}">Cliente</td>
+                                        <td><span class="badge badge-secondary" th:text="${res.cantidadPersonas}">2</span></td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(proximasReservaciones)}">
+                                        <td colspan="4" class="text-center text-muted py-3">No hay reservaciones próximas</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="/admin/reservaciones" style="color: #c49b63;">Ver todas las reservaciones <i class="fa fa-arrow-right ml-1"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{base :: footer}"></div>
+    <div th:replace="~{base :: scripts}"></div>
+    <div th:replace="~{base :: floating-buttons}"></div>
+</body>
+</html>

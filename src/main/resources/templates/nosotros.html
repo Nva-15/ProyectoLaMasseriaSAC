@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Sobre Nosotros - La Masseria</title>
+</head>
+<body>
+    <!-- Navbar (usando fragmento) -->
+    <div th:replace="~{base :: navbar}"></div>
+
+    <!-- Page Header -->
+    <div class="container-fluid page-header mb-5 position-relative overlay-bottom">
+        <div class="d-flex flex-column align-items-center justify-content-center pt-0 pt-lg-5" style="min-height: 400px">
+            <h1 class="display-4 mb-3 mt-0 mt-lg-5 text-white text-uppercase">Sobre Nosotros</h1>
+            <div class="d-inline-flex mb-lg-5">
+                <p class="m-0 text-white"><a class="text-white" href="/">Inicio</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white">Sobre Nosotros</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Us Section -->
+    <div class="container-fluid py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 py-5">
+                    <h1 class="mb-4">Nuestra Historia</h1>
+                    <p class="mb-3">Disfruta de nuestro café artesanal y gastronomía local en un ambiente cálido y acogedor. Desde hace una década, La Masseria ha sido más que una cafetería; ha sido un refugio para quienes buscan sabor, tradición y momentos memorables.</p>
+                    <p class="mb-3">Fundada en 2015 con una visión clara: crear un espacio donde la calidad de los productos, la calidez del servicio y la autenticidad de nuestras recetas convergen en cada bocado. Nuestro nombre, "La Masseria", hace referencia a una tradición italiana de espacios acogedores donde se comparte comida y momentos especiales.</p>
+                    <p class="mb-3">Cada uno de nuestros productos es preparado con ingredientes seleccionados, respetando recetas tradicionales y agregando nuestro toque personal. Desde nuestros cafés de especialidad hasta nuestros pasteles artesanales, cada detalle refleja nuestro compromiso con la excelencia.</p>
+                    <a href="/" class="btn btn-primary font-weight-bold py-2 px-4 mt-2">Volver al Inicio</a>
+                </div>
+                <div class="col-lg-6 py-5">
+                    <!-- Video más pequeño con contenedor ajustado -->
+                    <div style="max-width: 400px; margin: 0 auto;">
+                        <video autoplay muted loop class="w-100 rounded shadow" style="max-height: 600px; object-fit: cover;">
+                            <source src="/img/about.mp4" type="video/mp4">
+                            Tu navegador no soporta videos HTML5.
+                        </video>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Our Vision Section -->
+    <div class="container-fluid bg-light py-5">
+        <div class="container">
+            <div class="section-title">
+                <h4 class="text-primary text-uppercase" style="letter-spacing: 5px;">Nuestra Visión</h4>
+                <h1 class="display-4">Aspiramos a ser líderes en la industria</h1>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <h3 class="mb-3">Visión</h3>
+                    <p>Ser una cafetería referente en nuestra ciudad por su propuesta de valor, calidad de productos y conexión genuina con sus clientes. Aspiramos a expandir nuestra comunidad a través de canales digitales, posicionándonos como una marca moderna, accesible y comprometida con la excelencia.</p>
+                    <p>Queremos que La Masseria sea reconocida no solo por su café y gastronomía excepcional, sino por la experiencia única y memorable que brindamos a cada cliente.</p>
+                </div>
+                <div class="col-lg-6">
+                    <h3 class="mb-3">Misión</h3>
+                    <p>Proporcionar a nuestros clientes una experiencia gastronómica excepcional a través de productos de calidad superior, preparados con dedicación y servidos con calidez genuina. Nos comprometemos a mantener los más altos estándares de higiene, frescura e innovación en cada uno de nuestros servicios.</p>
+                    <p>Nuestra misión es ser el lugar preferido para que nuestros clientes disfruten de momentos especiales, ya sea solos, en familia o con amigos, en un ambiente que evoca tradición, modernidad y calidez.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Values Section -->
+    <div class="container-fluid py-5">
+        <div class="container">
+            <div class="section-title">
+                <h4 class="text-primary text-uppercase" style="letter-spacing: 5px;">Nuestros Valores</h4>
+                <h1 class="display-4">Lo que nos define</h1>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fa fa-heart text-primary" style="font-size: 2.5rem; margin-bottom: 10px;"></i>
+                            <h4 class="mb-2">Pasión</h4>
+                            <p>Cada producto es elaborado con amor y dedicación, reflejando nuestra pasión por la gastronomía y el servicio al cliente.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fa fa-check text-primary" style="font-size: 2.5rem; margin-bottom: 10px;"></i>
+                            <h4 class="mb-2">Calidad</h4>
+                            <p>Utilizamos solo ingredientes frescos y de alta calidad, manteniendo altos estándares en cada aspecto de nuestro negocio.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fa fa-handshake text-primary" style="font-size: 2.5rem; margin-bottom: 10px;"></i>
+                            <h4 class="mb-2">Confianza</h4>
+                            <p>Nuestros clientes confían en nosotros para brindarles experiencias auténticas y consistentes.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fa fa-lightbulb text-primary" style="font-size: 2.5rem; margin-bottom: 10px;"></i>
+                            <h4 class="mb-2">Innovación</h4>
+                            <p>Constantemente buscamos mejorar nuestros servicios e incorporar nuevas formas de sorprender a nuestros clientes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div th:replace="~{base :: footer}"></div>
+    
+    <!-- Scripts -->
+    <div th:replace="~{base :: scripts}"></div>
+    
+    <!-- Botones flotantes -->
+    <div th:replace="~{base :: floating-buttons}"></div>
+</body>
+</html>

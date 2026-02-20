@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <meta charset="utf-8">
+    <title>Admin - Usuarios</title>
+</head>
+<body>
+    <div th:replace="~{base :: navbar}"></div>
+
+    <div class="container-fluid page-header mb-5 position-relative overlay-bottom">
+        <div class="d-flex flex-column align-items-center justify-content-center pt-0 pt-lg-5" style="min-height: 400px">
+            <h1 class="display-4 mb-3 mt-0 mt-lg-5 text-white text-uppercase">Gestión de Usuarios</h1>
+            <div class="d-inline-flex mb-lg-5">
+                <p class="m-0 text-white"><a class="text-white" href="/">Inicio</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white"><a class="text-white" href="/admin">Admin</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white">Usuarios</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid pt-5">
+        <!-- Alertas -->
+        <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa fa-check-circle mr-2"></i>[[${mensaje}]]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa fa-exclamation-circle mr-2"></i>[[${error}]]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+
+        <!-- Resumen rápido -->
+        <div class="row px-xl-5 mb-4">
+            <div class="col-md-4 mb-3">
+                <div class="card border-0 shadow-sm" style="border-left: 4px solid #dc3545 !important;">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 45px; height: 45px; background: rgba(220,53,69,0.15);">
+                            <i class="fa fa-user-shield text-danger"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-0" style="font-size: 0.75rem;">ADMINISTRADORES</h6>
+                            <h3 class="mb-0 font-weight-bold" th:text="${#lists.size(admins)}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card border-0 shadow-sm" style="border-left: 4px solid #007bff !important;">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 45px; height: 45px; background: rgba(0,123,255,0.15);">
+                            <i class="fa fa-users text-primary"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-0" style="font-size: 0.75rem;">CLIENTES</h6>
+                            <h3 class="mb-0 font-weight-bold" th:text="${#lists.size(clientes)}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card border-0 shadow-sm" style="border-left: 4px solid #28a745 !important;">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mr-3" style="width: 45px; height: 45px; background: rgba(40,167,69,0.15);">
+                            <i class="fa fa-user-check text-success"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-0" style="font-size: 0.75rem;">TOTAL</h6>
+                            <h3 class="mb-0 font-weight-bold" th:text="${#lists.size(admins) + #lists.size(clientes)}">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TABLA ADMINISTRADORES ==================== -->
+        <div class="row px-xl-5 mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center text-white" style="background: #dc3545;">
+                        <h5 class="mb-0"><i class="fa fa-user-shield mr-2"></i>Administradores</h5>
+                        <span class="badge badge-light" th:text="${#lists.size(admins)} + ' administradores'">0</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead style="background: #f8f9fa;">
+                                    <tr>
+                                        <th class="px-3">#ID</th>
+                                        <th>Nombre</th>
+                                        <th>Email</th>
+                                        <th>DNI</th>
+                                        <th>Teléfono</th>
+                                        <th class="text-center">Estado</th>
+                                        <th>Último Acceso</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="usr : ${admins}" th:classappend="${!usr.activo ? 'table-secondary' : ''}">
+                                        <td class="px-3 font-weight-bold" th:text="${usr.id}">1</td>
+                                        <td>
+                                            <i class="fa fa-user-shield text-danger mr-1"></i>
+                                            <span th:text="${usr.nombreCompleto}">Nombre</span>
+                                        </td>
+                                        <td th:text="${usr.email}">email@example.com</td>
+                                        <td th:text="${usr.dni ?: '-'}">12345678</td>
+                                        <td th:text="${usr.telefono ?: '-'}">000000</td>
+                                        <td class="text-center">
+                                            <span th:if="${usr.activo}" class="badge badge-success">Activo</span>
+                                            <span th:if="${!usr.activo}" class="badge badge-danger">Inactivo</span>
+                                        </td>
+                                        <td th:text="${usr.ultimoAcceso != null ? #temporals.format(usr.ultimoAcceso, 'dd/MM/yyyy HH:mm') : 'Nunca'}">-</td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                <!-- Quitar rol Admin -->
+                                                <form th:action="@{'/admin/usuarios/' + ${usr.id} + '/rol'}" method="post" class="d-inline">
+                                                    <input type="hidden" name="rol" value="CLIENTE">
+                                                    <button type="submit" class="btn btn-sm btn-outline-primary" title="Cambiar a Cliente"
+                                                            onclick="return confirm('¿Quitar rol de administrador a este usuario?');">
+                                                        <i class="fa fa-user-minus mr-1"></i>Quitar Admin
+                                                    </button>
+                                                </form>
+                                                <!-- Activar/Desactivar -->
+                                                <form th:action="@{'/admin/usuarios/' + ${usr.id} + '/estado'}" method="post" class="d-inline ml-1">
+                                                    <input type="hidden" name="activo" th:value="${!usr.activo}">
+                                                    <button type="submit" class="btn btn-sm"
+                                                            th:classappend="${usr.activo ? 'btn-outline-warning' : 'btn-outline-success'}"
+                                                            th:title="${usr.activo ? 'Desactivar' : 'Activar'}">
+                                                        <i th:classappend="${usr.activo ? 'fa fa-user-slash' : 'fa fa-user-check'}"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(admins)}">
+                                        <td colspan="8" class="text-center text-muted py-4">
+                                            <i class="fa fa-user-shield fa-2x mb-2 d-block"></i>No hay administradores registrados
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TABLA CLIENTES ==================== -->
+        <div class="row px-xl-5 mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center text-white" style="background: #007bff;">
+                        <h5 class="mb-0"><i class="fa fa-users mr-2"></i>Clientes</h5>
+                        <span class="badge badge-light" th:text="${#lists.size(clientes)} + ' clientes'">0</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead style="background: #f8f9fa;">
+                                    <tr>
+                                        <th class="px-3">#ID</th>
+                                        <th>Nombre</th>
+                                        <th>Email</th>
+                                        <th>DNI</th>
+                                        <th>Teléfono</th>
+                                        <th>Dirección</th>
+                                        <th class="text-center">Estado</th>
+                                        <th>Registro</th>
+                                        <th>Último Acceso</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="usr : ${clientes}" th:classappend="${!usr.activo ? 'table-secondary' : ''}">
+                                        <td class="px-3 font-weight-bold" th:text="${usr.id}">1</td>
+                                        <td>
+                                            <i class="fa fa-user text-primary mr-1"></i>
+                                            <span th:text="${usr.nombreCompleto}">Nombre</span>
+                                        </td>
+                                        <td th:text="${usr.email}">email@example.com</td>
+                                        <td th:text="${usr.dni ?: '-'}">12345678</td>
+                                        <td th:text="${usr.telefono ?: '-'}">000000</td>
+                                        <td th:text="${usr.direccion ?: '-'}" style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Dirección</td>
+                                        <td class="text-center">
+                                            <span th:if="${usr.activo}" class="badge badge-success">Activo</span>
+                                            <span th:if="${!usr.activo}" class="badge badge-danger">Inactivo</span>
+                                        </td>
+                                        <td th:text="${usr.fechaRegistro != null ? #temporals.format(usr.fechaRegistro, 'dd/MM/yyyy') : '-'}">-</td>
+                                        <td th:text="${usr.ultimoAcceso != null ? #temporals.format(usr.ultimoAcceso, 'dd/MM/yyyy HH:mm') : 'Nunca'}">-</td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                <!-- Hacer Admin -->
+                                                <form th:action="@{'/admin/usuarios/' + ${usr.id} + '/rol'}" method="post" class="d-inline">
+                                                    <input type="hidden" name="rol" value="ADMIN">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Hacer Administrador"
+                                                            onclick="return confirm('¿Dar rol de administrador a este cliente?');">
+                                                        <i class="fa fa-user-shield mr-1"></i>Hacer Admin
+                                                    </button>
+                                                </form>
+                                                <!-- Activar/Desactivar -->
+                                                <form th:action="@{'/admin/usuarios/' + ${usr.id} + '/estado'}" method="post" class="d-inline ml-1">
+                                                    <input type="hidden" name="activo" th:value="${!usr.activo}">
+                                                    <button type="submit" class="btn btn-sm"
+                                                            th:classappend="${usr.activo ? 'btn-outline-warning' : 'btn-outline-success'}"
+                                                            th:title="${usr.activo ? 'Desactivar cuenta' : 'Activar cuenta'}">
+                                                        <i th:classappend="${usr.activo ? 'fa fa-user-slash' : 'fa fa-user-check'}"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(clientes)}">
+                                        <td colspan="10" class="text-center text-muted py-4">
+                                            <i class="fa fa-users fa-2x mb-2 d-block"></i>No hay clientes registrados
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{base :: footer}"></div>
+    <div th:replace="~{base :: scripts}"></div>
+    <div th:replace="~{base :: floating-buttons}"></div>
+</body>
+</html>

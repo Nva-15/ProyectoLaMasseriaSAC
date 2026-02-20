@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <meta charset="utf-8">
+    <title>Admin - Categoría</title>
+</head>
+<body>
+    <div th:replace="~{base :: navbar}"></div>
+
+    <div class="container-fluid page-header mb-5 position-relative overlay-bottom">
+        <div class="d-flex flex-column align-items-center justify-content-center pt-0 pt-lg-5" style="min-height: 400px">
+            <h1 class="display-4 mb-3 mt-0 mt-lg-5 text-white text-uppercase" th:text="${titulo}">Categoría</h1>
+            <div class="d-inline-flex mb-lg-5">
+                <p class="m-0 text-white"><a class="text-white" href="/">Inicio</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white"><a class="text-white" href="/admin">Admin</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white"><a class="text-white" href="/admin/categorias">Categorías</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white" th:text="${titulo}">Formulario</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid pt-5">
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa fa-exclamation-circle mr-2"></i>[[${error}]]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+
+        <div class="row px-xl-5 justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header text-white" style="background: #c49b63;">
+                        <h5 class="mb-0"><i class="fa fa-tags mr-2"></i><span th:text="${titulo}">Categoría</span></h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="/admin/categorias/guardar" method="post">
+                            <input type="hidden" name="id" th:value="${categoria.id}">
+
+                            <div class="form-group">
+                                <label class="font-weight-bold">Nombre <span class="text-danger">*</span></label>
+                                <input type="text" name="nombre" class="form-control" th:value="${categoria.nombre}"
+                                       required placeholder="Ej: Desayuno, Bebida Caliente, Postre...">
+                                <small class="form-text text-muted">El nombre se guardará en mayúsculas automáticamente</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="font-weight-bold">Descripción</label>
+                                <textarea name="descripcion" class="form-control" rows="3"
+                                          th:text="${categoria.descripcion}" placeholder="Descripción de la categoría (opcional)"></textarea>
+                            </div>
+
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <a href="/admin/categorias" class="btn btn-secondary">
+                                    <i class="fa fa-arrow-left mr-1"></i>Cancelar
+                                </a>
+                                <button type="submit" class="btn text-white" style="background: #c49b63;">
+                                    <i class="fa fa-save mr-1"></i>Guardar Categoría
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{base :: footer}"></div>
+    <div th:replace="~{base :: scripts}"></div>
+    <div th:replace="~{base :: floating-buttons}"></div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <title>Iniciar Sesión - La Masseria</title>
+</head>
+<body>
+    <!-- FORMULARIO ENCIMA DEL NAVBAR -->
+    <div class="container-fluid py-4" style="background: white;">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="card shadow-lg border-0 rounded-lg">
+                    <div class="card-header" style="background: #c49b63; color: white; border-radius: 10px 10px 0 0;">
+                        <h3 class="text-center font-weight-light my-2">
+                            <i class="fa fa-sign-in-alt mr-2"></i>Iniciar Sesión
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <!-- ===== MENSAJES MEJORADOS ===== -->
+                        
+                        <!-- Mensaje de registro exitoso -->
+                        <div th:if="${param.registro != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fa fa-check-circle mr-2"></i>
+                            <span th:text="${mensaje} ?: 'Registro exitoso. ¡Ya puedes iniciar sesión!'"></span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Mensaje de error de credenciales -->
+                        <div th:if="${param.error != null}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fa fa-exclamation-circle mr-2"></i>
+                            <span th:text="${error} ?: 'Credenciales incorrectas'"></span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        
+                        <!-- ===== NUEVO: Mensaje cuando se intenta acceder a página protegida ===== -->
+                        <div th:if="${param.acceso != null}" class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <i class="fa fa-exclamation-triangle mr-2"></i>
+                            <span th:text="${error} ?: 'Debes iniciar sesión para acceder a esta página'"></span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Mensaje de sesión cerrada -->
+                        <div th:if="${param.logout != null}" class="alert alert-info alert-dismissible fade show" role="alert">
+                            <i class="fa fa-info-circle mr-2"></i>
+                            <span>Has cerrado sesión correctamente</span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <form th:action="@{/login}" method="POST">
+                            <div class="form-group">
+                                <label class="small mb-1" for="email">
+                                    <i class="fa fa-envelope text-primary mr-1"></i>Correo Electrónico
+                                </label>
+                                <input class="form-control py-3" id="email" name="email" 
+                                       type="email" placeholder="Ingresa tu correo electrónico" 
+                                       th:value="${email}" required />
+                            </div>
+                            <div class="form-group">
+                                <label class="small mb-1" for="password">
+                                    <i class="fa fa-lock text-primary mr-1"></i>Contraseña
+                                </label>
+                                <input class="form-control py-3" id="password" name="password" 
+                                       type="password" placeholder="Ingresa tu contraseña" required />
+                            </div>
+                            <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0">
+                                <div class="form-check">
+                                    <input class="form-check-input" id="rememberPasswordCheck" type="checkbox" />
+                                    <label class="form-check-label" for="rememberPasswordCheck">Recordarme</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="background: #c49b63; border: none;">
+                                    <i class="fa fa-sign-in-alt mr-2"></i>Ingresar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer text-center py-3">
+                        <div class="small">
+                            <a href="/registro" class="text-primary">¿No tienes cuenta? Regístrate aquí</a>
+                            <span class="mx-2">|</span>
+                            <a href="/" class="text-secondary">Volver al inicio</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{base :: footer}"></div>
+    <div th:replace="~{base :: scripts}"></div>
+    <div th:replace="~{base :: floating-buttons}"></div>
+</body>
+</html>

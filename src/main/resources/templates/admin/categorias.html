@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <meta charset="utf-8">
+    <title>Admin - Categorías</title>
+</head>
+<body>
+    <div th:replace="~{base :: navbar}"></div>
+
+    <div class="container-fluid page-header mb-5 position-relative overlay-bottom">
+        <div class="d-flex flex-column align-items-center justify-content-center pt-0 pt-lg-5" style="min-height: 400px">
+            <h1 class="display-4 mb-3 mt-0 mt-lg-5 text-white text-uppercase">Gestión de Categorías</h1>
+            <div class="d-inline-flex mb-lg-5">
+                <p class="m-0 text-white"><a class="text-white" href="/">Inicio</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white"><a class="text-white" href="/admin">Admin</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white">Categorías</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid pt-5">
+        <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa fa-check-circle mr-2"></i>[[${mensaje}]]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa fa-exclamation-circle mr-2"></i>[[${error}]]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center text-white" style="background: #c49b63;">
+                        <h5 class="mb-0"><i class="fa fa-tags mr-2"></i>Todas las Categorías</h5>
+                        <a href="/admin/categorias/nueva" class="btn btn-light btn-sm">
+                            <i class="fa fa-plus mr-1"></i>Nueva Categoría
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead style="background: #f8f9fa;">
+                                    <tr>
+                                        <th class="px-3">#ID</th>
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th class="text-center">Productos</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="cat : ${categorias}">
+                                        <td class="px-3 font-weight-bold" th:text="${cat.id}">1</td>
+                                        <td>
+                                            <span class="badge badge-pill px-3 py-2" style="background: rgba(196,155,99,0.15); color: #c49b63; font-size: 0.9rem;"
+                                                  th:text="${cat.nombre}">CATEGORÍA</span>
+                                        </td>
+                                        <td th:text="${cat.descripcion ?: 'Sin descripción'}" class="text-muted"
+                                            style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Descripción</td>
+                                        <td class="text-center">
+                                            <span class="badge badge-info" th:text="${productosCount[cat.id] != null ? productosCount[cat.id] : 0}">0</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                <a th:href="@{'/admin/categorias/' + ${cat.id} + '/editar'}" class="btn text-white" style="background: #c49b63;" title="Editar">
+                                                    <i class="fa fa-edit"></i>
+                                                </a>
+                                                <form th:action="@{'/admin/categorias/' + ${cat.id} + '/eliminar'}" method="post" class="d-inline"
+                                                      onsubmit="return confirm('¿Eliminar esta categoría? Solo se puede si no tiene productos asociados.');">
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(categorias)}">
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            <i class="fa fa-tags fa-2x mb-2 d-block"></i>No hay categorías registradas
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{base :: footer}"></div>
+    <div th:replace="~{base :: scripts}"></div>
+    <div th:replace="~{base :: floating-buttons}"></div>
+</body>
+</html>

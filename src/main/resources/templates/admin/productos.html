@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <meta charset="utf-8">
+    <title>Admin - Productos</title>
+</head>
+<body>
+    <div th:replace="~{base :: navbar}"></div>
+
+    <div class="container-fluid page-header mb-5 position-relative overlay-bottom">
+        <div class="d-flex flex-column align-items-center justify-content-center pt-0 pt-lg-5" style="min-height: 400px">
+            <h1 class="display-4 mb-3 mt-0 mt-lg-5 text-white text-uppercase">Gestión de Productos</h1>
+            <div class="d-inline-flex mb-lg-5">
+                <p class="m-0 text-white"><a class="text-white" href="/">Inicio</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white"><a class="text-white" href="/admin">Admin</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white">Productos</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container-fluid pt-5">
+        <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa fa-check-circle mr-2"></i>[[${mensaje}]]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa fa-exclamation-circle mr-2"></i>[[${error}]]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center text-white" style="background: #c49b63;">
+                        <h5 class="mb-0"><i class="fa fa-coffee mr-2"></i>Todos los Productos</h5>
+                        <a href="/admin/productos/nuevo" class="btn btn-light btn-sm">
+                            <i class="fa fa-plus mr-1"></i>Nuevo Producto
+                        </a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead style="background: #f8f9fa;">
+                                    <tr>
+                                        <th class="px-3">#ID</th>
+                                        <th>Imagen</th>
+                                        <th>Nombre</th>
+                                        <th>Categoría</th>
+                                        <th>Precio</th>
+                                        <th class="text-center">Stock</th>
+                                        <th class="text-center">Destacado</th>
+                                        <th class="text-center">Activo</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="producto : ${productos}" th:classappend="${!producto.activo ? 'table-secondary' : ''}">
+                                        <td class="px-3 font-weight-bold" th:text="${producto.id}">1</td>
+                                        <td>
+                                            <img th:if="${producto.imagenUrl != null}" th:src="${producto.imagenUrl}"
+                                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px; border: 2px solid #c49b63;">
+                                            <span th:if="${producto.imagenUrl == null}" class="text-muted"><i class="fa fa-image"></i></span>
+                                        </td>
+                                        <td th:text="${producto.nombre}">Producto</td>
+                                        <td th:text="${producto.categoria != null ? producto.categoria.nombre : 'Sin categoría'}">Categoría</td>
+                                        <td class="font-weight-bold">S/ <span th:text="${#numbers.formatDecimal(producto.precio, 1, 2)}">0.00</span></td>
+                                        <td class="text-center">
+                                            <span class="badge" th:classappend="${producto.stock > 0 ? 'badge-success' : 'badge-danger'}"
+                                                  th:text="${producto.stock}">0</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <i th:if="${producto.destacado}" class="fa fa-star" style="color: #c49b63;"></i>
+                                            <i th:if="${!producto.destacado}" class="fa fa-star text-muted"></i>
+                                        </td>
+                                        <td class="text-center">
+                                            <span th:if="${producto.activo}" class="badge badge-success">Activo</span>
+                                            <span th:if="${!producto.activo}" class="badge badge-danger">Inactivo</span>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="btn-group btn-group-sm">
+                                                <a th:href="@{'/admin/productos/' + ${producto.id} + '/editar'}" class="btn text-white" style="background: #c49b63;" title="Editar">
+                                                    <i class="fa fa-edit"></i>
+                                                </a>
+                                                <form th:if="${producto.activo}" th:action="@{'/admin/productos/' + ${producto.id} + '/eliminar'}" method="post" class="d-inline"
+                                                      onsubmit="return confirm('¿Desactivar este producto?');">
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Desactivar">
+                                                        <i class="fa fa-ban"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(productos)}">
+                                        <td colspan="9" class="text-center text-muted py-4">
+                                            <i class="fa fa-coffee fa-2x mb-2 d-block"></i>No hay productos registrados
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{base :: footer}"></div>
+    <div th:replace="~{base :: scripts}"></div>
+    <div th:replace="~{base :: floating-buttons}"></div>
+</body>
+</html>

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="La Masseria - Cafetería" name="description">
+    <title th:text="${titulo} ?: 'La Masseria - Cafetería'">La Masseria</title>
+
+    <!-- Favicon -->
+    <link href="/img/favicon.ico" rel="icon">
+
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;400&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="/css/style.min.css" rel="stylesheet">
+    <link href="/css/st.css" rel="stylesheet">
+
+    <style>
+    .dropdown {
+        position: relative;
+    }
+    
+    .dropdown:hover .dropdown-menu {
+        display: block;
+        margin-top: 0;
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .dropdown .dropdown-menu {
+        display: block;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.1s ease;
+        margin-top: 0;
+        border: none;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        padding: 8px 0;
+        background: white;
+    }
+    
+    /* Mantener visible al pasar sobre el menú */
+    .dropdown-menu:hover {
+        display: block;
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    /* Ajustes de los items del dropdown */
+    .dropdown-item {
+        padding: 10px 20px;
+        transition: all 0.2s;
+        color: #333;
+        font-weight: 500;
+    }
+    
+    .dropdown-item:hover {
+        background: #c49b63;
+        color: white !important;
+        transform: translateX(5px);
+    }
+    
+    .dropdown-item:hover i {
+        color: white !important;
+    }
+    
+    .dropdown-item.active {
+        background: #c49b63 !important;
+        color: white !important;
+    }
+    
+    /* ESTILO UNIFICADO PARA EL NAVBAR ACTIVO */
+    .navbar-nav .nav-link.active,
+    .nav-item .nav-link.active {
+        color: #c49b63 !important;
+        font-weight: 700;
+        position: relative;
+    }
+    
+    /* Subrayado decorativo para active */
+    .navbar-nav .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: 5px;
+        left: 15px;
+        right: 15px;
+        height: 2px;
+        background-color: #c49b63;
+        border-radius: 2px;
+    }
+    
+    /* Mejora para los enlaces */
+    .navbar-nav .nav-link {
+        font-size: 16px;
+        font-weight: 500;
+        padding: 10px 15px !important;
+        color: rgba(255,255,255,0.9) !important;
+        transition: color 0.2s;
+    }
+    
+    .navbar-nav .nav-link:hover {
+        color: #c49b63 !important;
+    }
+    
+    /* Estilos para las tarjetas de características */
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        line-height: 80px;
+        background-color: rgba(196, 155, 99, 0.1);
+        border-radius: 50%;
+        margin: 0 auto 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .card:hover .feature-icon {
+        background-color: #c49b63;
+        transform: translateY(-5px);
+    }
+    
+    .card:hover .feature-icon i {
+        color: white !important;
+    }
+    
+    .feature-icon i {
+        transition: all 0.3s ease;
+    }
+    
+    .card {
+        transition: all 0.3s ease;
+        border-radius: 15px;
+        overflow: hidden;
+        border: none !important;
+    }
+    
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+    }
+    
+    .card h4 {
+        color: #333;
+        font-weight: 600;
+        font-size: 1.2rem;
+    }
+    
+    .section-title {
+        margin-bottom: 60px;
+    }
+    
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+    
+    /* Estilos para testimonios */
+    .testimonial-item {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .testimonial-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    
+    .testimonial-item img {
+        border: 3px solid #c49b63;
+        transition: transform 0.3s ease;
+    }
+    
+    .testimonial-item:hover img {
+        transform: scale(1.05);
+    }
+    
+    .testimonial-item h4 {
+        color: #333;
+        font-weight: 600;
+    }
+    
+    .testimonial-item p {
+        color: #666;
+        line-height: 1.6;
+    }
+    
+    .testimonial-item .text-muted em {
+        color: #c49b63 !important;
+        font-style: italic;
+    }
+    
+    /* Ajuste de tamaños de iconos y textos */
+    .navbar-nav .nav-link i {
+        font-size: 0.9rem;
+        margin-right: 5px;
+    }
+    
+    .navbar-nav .nav-link {
+        font-size: 15px !important;
+        padding: 8px 12px !important;
+    }
+    
+    .dropdown-item i {
+        font-size: 0.9rem;
+        width: 20px;
+        text-align: center;
+        margin-right: 8px;
+    }
+    
+    .dropdown-item {
+        font-size: 14px;
+        padding: 8px 20px;
+    }
+    
+    /* Tamaño uniforme para todos los iconos */
+    .fa, .fas, .far, .fab {
+        font-size: inherit;
+    }
+    
+    /* Ajuste específico para iconos del menú */
+    .navbar-nav .fa-utensils,
+    .navbar-nav .fa-home,
+    .navbar-nav .fa-info-circle,
+    .navbar-nav .fa-calendar-check,
+    .navbar-nav .fa-clipboard-list,
+    .navbar-nav .fa-envelope,
+    .navbar-nav .fa-user-circle {
+        font-size: 0.95rem;
+    }
+    
+    /* Botón Mi Cuenta */
+    .navbar-nav .fa-user-circle {
+        font-size: 1rem;
+    }
+    
+    /* Logo más pequeño */
+    .navbar-brand img {
+        height: 100px !important;
+        transition: height 0.3s ease;
+    }
+    
+    /* Ajuste para móviles */
+    @media (max-width: 991.98px) {
+        .dropdown:hover .dropdown-menu {
+            display: none;
+        }
+        .dropdown.show .dropdown-menu {
+            display: block;
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .navbar-nav .nav-link.active::after {
+            display: none;
+        }
+        
+        .navbar-brand img {
+            height: 80px !important;
+        }
+        
+        .navbar-nav .nav-link {
+            padding: 8px 15px !important;
+        }
+    }
+    
+    /* Estilos para el logo en el footer */
+    .footer-logo {
+        max-width: 150px;
+        height: auto;
+        margin-bottom: 15px;
+        filter: brightness(0) invert(1); 
+        transition: transform 0.3s ease;
+    }
+    
+    .footer-logo:hover {
+        transform: scale(1.05);
+    }
+    
+    /* Asegurar que el texto se vea bien */
+    .footer .lead {
+        font-size: 1.2rem !important;
+        margin-top: 15px;
+    }
+
+    .footer .text-center p:last-child {
+        font-size: 1rem !important;
+    }
+    </style>
+</head>
+<body>
+    <!-- Navbar Fragment -->
+    <div th:fragment="navbar">
+        <div class="container-fluid p-0 nav-bar">
+            <nav class="navbar navbar-expand-lg bg-none navbar-dark py-3">
+                <a href="/" class="navbar-brand px-lg-4 m-0">
+                    <img src="/img/logo2.png" alt="Logo La Masseria" style="height: 100px; width: auto;">
+                </a>
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+                    <div class="navbar-nav ml-auto p-4">
+                        <a href="/" class="nav-item nav-link" th:classappend="${activePage == 'inicio' ? 'active' : ''}">
+                            <i class="fa fa-home mr-1"></i>Inicio
+                        </a>
+                        <a href="/nosotros" class="nav-item nav-link" th:classappend="${activePage == 'nosotros' ? 'active' : ''}">
+                            <i class="fa fa-info-circle mr-1"></i>Sobre Nosotros
+                        </a>
+                        
+                        <!-- Menú con hover mejorado - CON ICONOS -->
+                        <div class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button">
+                                <i class="fa fa-utensils mr-1"></i> Menú Masseria
+                            </a>
+                            <div class="dropdown-menu text-capitalize">
+                                <a href="/menu/desayunos" class="dropdown-item">
+                                    <i class="fa fa-sun fa-fw mr-2" style="color: #c49b63;"></i>Desayunos
+                                </a>
+                                <a href="/menu/bebidas-calientes" class="dropdown-item">
+                                    <i class="fa fa-mug-hot fa-fw mr-2" style="color: #c49b63;"></i>Bebidas Calientes
+                                </a>
+                                <a href="/menu/bebidas-frias" class="dropdown-item">
+                                    <i class="fa fa-glass-whiskey fa-fw mr-2" style="color: #c49b63;"></i>Bebidas Frías
+                                </a>
+                                <a href="/menu/postres" class="dropdown-item">
+                                    <i class="fa fa-cake-candles fa-fw mr-2" style="color: #c49b63;"></i>Postres
+                                </a>
+                                <div class="dropdown-divider"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- ===== ENLACES PROTEGIDOS - SOLO VISIBLES CON SESIÓN ===== -->
+                        <a th:if="${session.usuario != null}" href="/reservaciones" class="nav-item nav-link" th:classappend="${activePage == 'reservaciones' ? 'active' : ''}">
+                            <i class="fa fa-calendar-check mr-1"></i>Reservas
+                        </a>
+                        <a th:if="${session.usuario != null}" href="/pedidos" class="nav-item nav-link" th:classappend="${activePage == 'pedidos' ? 'active' : ''}">
+                            <i class="fa fa-clipboard-list mr-1"></i>Pedidos
+                        </a>
+                        
+                        <a href="/contacto" class="nav-item nav-link" th:classappend="${activePage == 'contacto' ? 'active' : ''}">
+                            <i class="fa fa-envelope mr-1"></i>Contacto
+                        </a>
+
+                        <!-- ===== PANEL ADMIN - SOLO VISIBLE PARA ADMINISTRADORES ===== -->
+                        <div class="nav-item dropdown" th:if="${session.usuario != null and session.usuario.esAdmin()}">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button"
+                               th:classappend="${activePage != null and activePage.startsWith('admin') ? 'active' : ''}">
+                                <i class="fa fa-cogs mr-1"></i> Admin
+                            </a>
+                            <div class="dropdown-menu text-capitalize">
+                                <a href="/admin" class="dropdown-item">
+                                    <i class="fa fa-tachometer-alt fa-fw mr-2" style="color: #c49b63;"></i>Dashboard
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="/admin/pedidos" class="dropdown-item">
+                                    <i class="fa fa-shopping-cart fa-fw mr-2" style="color: #c49b63;"></i>Pedidos
+                                </a>
+                                <a href="/admin/reservaciones" class="dropdown-item">
+                                    <i class="fa fa-calendar-alt fa-fw mr-2" style="color: #c49b63;"></i>Reservaciones
+                                </a>
+                                <a href="/admin/productos" class="dropdown-item">
+                                    <i class="fa fa-coffee fa-fw mr-2" style="color: #c49b63;"></i>Productos
+                                </a>
+                                <a href="/admin/categorias" class="dropdown-item">
+                                    <i class="fa fa-tags fa-fw mr-2" style="color: #c49b63;"></i>Categorías
+                                </a>
+                                <a href="/admin/usuarios" class="dropdown-item">
+                                    <i class="fa fa-users fa-fw mr-2" style="color: #c49b63;"></i>Usuarios
+                                </a>
+                                <a href="/admin/contactos" class="dropdown-item">
+                                    <i class="fa fa-envelope fa-fw mr-2" style="color: #c49b63;"></i>Contactos
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Separador y botones de usuario - CON ENLACES DIRECTOS -->
+                    <div class="navbar-nav ml-2">
+                        <!-- Usuario NO logueado -->
+                        <div class="nav-item dropdown" th:if="${session.usuario == null}">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button">
+                                <i class="fa fa-user-circle mr-1"></i> Mi Cuenta
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a href="/login" class="dropdown-item">
+                                    <i class="fa fa-sign-in-alt mr-2"></i>Iniciar Sesión
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="/registro" class="dropdown-item">
+                                    <i class="fa fa-user-plus mr-2"></i>Registrarse
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Usuario logueado -->
+                        <div class="nav-item dropdown" th:if="${session.usuario != null}">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button">
+                                <i class="fa fa-user-circle mr-1"></i> 
+                                <span th:text="${session.usuario.nombres} ?: 'Usuario'">Usuario</span>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a href="/perfil" class="dropdown-item">
+                                    <i class="fa fa-id-card mr-2"></i>Mi Perfil
+                                </a>
+                                <a href="/pedidos" class="dropdown-item">
+                                    <i class="fa fa-shopping-bag mr-2"></i>Mis Pedidos
+                                </a>
+                                <div class="dropdown-divider"></div>
+                                <a href="/logout" class="dropdown-item text-danger">
+                                    <i class="fa fa-sign-out-alt mr-2"></i>Cerrar Sesión
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Footer Fragment COMPLETO -->
+    <div th:fragment="footer">
+        <div class="container-fluid footer text-white mt-5 pt-5 px-0 position-relative overlay-top">
+            <div class="row mx-0 pt-5 px-sm-3 px-lg-5 mt-4">
+                <div class="col-lg-3 col-md-6 mb-5">
+                    <h4 class="text-white text-uppercase mb-4" style="letter-spacing: 3px;">Contáctanos</h4>
+                    <p><i class="fa fa-map-marker-alt mr-2"></i>Av. Universitaria /Mz. V Lte 14 Sec. 2, IV etapa /Barrio 1. AGR. Pachacamac - V.E.S.</p>
+                    <p><i class="fa fa-phone-alt mr-2"></i>+051 912594051</p>
+                    <p class="m-0"><i class="fa fa-envelope mr-2"></i>lamasseriaperu@gmail.com</p>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-5">
+                    <h4 class="text-white text-uppercase mb-4" style="letter-spacing: 3px;">Síganos</h4>
+                    <p>Pasteles, café y bocaditos listos para inspirarte.</p>
+                    <div class="d-flex justify-content-start">
+                        <a class="btn btn-lg btn-outline-light btn-lg-square mr-2" href="https://wa.me/51912594051" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i></a>
+                        <a class="btn btn-lg btn-outline-light btn-lg-square mr-2" href="https://facebook.com" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a>
+                        <a class="btn btn-lg btn-outline-light btn-lg-square mr-2" href="https://www.tiktok.com" target="_blank" rel="noopener"><i class="fab fa-tiktok"></i></a>
+                        <a class="btn btn-lg btn-outline-light btn-lg-square" href="https://instagram.com" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-5">
+                    <h4 class="text-white text-uppercase mb-4" style="letter-spacing: 3px;">Horario de Atención</h4>
+                    <div>
+                        <h6 class="text-white text-uppercase">Lunes - Viernes</h6>
+                        <p>7.30 AM - 9.00 PM</p>
+                        <h6 class="text-white text-uppercase">Sábado - Domingo</h6>
+                        <p>8.00 AM - 9.00 PM</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-5">
+                    <div class="text-center">
+                        <!-- Logo de La Masseria en lugar de la taza -->
+                        <img src="/img/logo2.png" alt="La Masseria" class="footer-logo" style="max-width: 250px; height: auto; margin-bottom: 15px;">
+                        <p class="lead font-italic font-weight-bold" style="font-size: 1.2rem;">"Cada taza cuenta una historia"</p>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid text-center text-white border-top mt-4 py-4 px-sm-3 px-md-5" style="border-color: rgba(256, 256, 256, .1) !important;">
+                <p class="mb-2 text-white">Copyright &copy; La Masseria. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts Fragment -->
+    <div th:fragment="scripts">
+        <!-- jQuery primero -->
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        
+        <!-- Popper.js segundo -->
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+        
+        <!-- Bootstrap JS tercero -->
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+        
+        <!-- Librerías adicionales -->
+        <script src="/lib/easing/easing.min.js"></script>
+        <script src="/lib/owlcarousel/owl.carousel.min.js"></script>
+        <script src="/js/main.js"></script>
+        
+        <!-- Script para manejar el dropdown en móviles -->
+        <script>
+            $(document).ready(function() {
+                // Para móviles: mantener el click
+                if ($(window).width() <= 991) {
+                    $('.dropdown-toggle').on('click', function(e) {
+                        e.preventDefault();
+                        $(this).next('.dropdown-menu').toggle();
+                    });
+                }
+            });
+        </script>
+    </div>
+
+    <!-- Elementos flotantes globales -->
+    <div th:fragment="floating-buttons">
+        <!-- Botón flotante de WhatsApp -->
+        <a href="https://wa.me/51912594051" class="whatsapp-float" target="_blank" title="Chatea con nosotros por WhatsApp">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+        
+        <!-- Back to Top -->
+        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top">
+            <i class="fa fa-angle-double-up"></i>
+        </a>
+    </div>
+</body>
+</html>

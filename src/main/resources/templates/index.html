@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <title>La Masseria - Inicio</title>
+</head>
+<body>
+    <!-- Navbar -->
+    <div th:replace="~{base :: navbar}"></div>
+
+    <!-- CONTENIDO PRINCIPAL DE LA PÁGINA DE INICIO -->
+    <main>
+        <!-- Carousel -->
+        <div class="container-fluid p-0 mb-5">
+            <div id="blog-carousel" class="carousel slide overlay-bottom" data-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img class="w-50" src="/img/carousel-1.jpg" alt="Image">
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                            <h2 class="text-primary font-weight-medium m-0">Descubre la increíble experiencia que te llevarás</h2>
+                            <h1 class="display-1 text-white m-0">Bienvenido</h1>
+                            <h2 class="text-white m-0">* Desde 2015 *</h2>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img class="w-50" src="/img/carousel-2.jpg" alt="Image">
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                            <h2 class="text-primary font-weight-medium m-0">Dulzura hecha en casa</h2>
+                            <h1 class="display-1 text-white m-0">Delicias dulces</h1>
+                            <h2 class="text-white m-0">Frescura y sabor en cada bocado</h2>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img class="w-50" src="/img/carousel-3.jpg" alt="Image">
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                            <h2 class="text-primary font-weight-medium m-0">Para cada ocasión</h2>
+                            <h1 class="display-1 text-white m-0">Bocaditos irresistibles</h1>
+                            <h2 class="text-white m-0">Hechos con dedicación y cariño</h2>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img class="w-50" src="/img/carousel-4.jpg" alt="Image">
+                        <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
+                            <h2 class="text-primary font-weight-medium m-0">Despierta tus sentidos</h2>
+                            <h1 class="display-1 text-white m-0">Café de especialidad</h1>
+                            <h2 class="text-white m-0">Aroma, cuerpo y sabor en armonía</h2>
+                        </div>
+                    </div>
+                </div>
+                <a class="carousel-control-prev" href="#blog-carousel" data-slide="prev">
+                    <span class="carousel-control-prev-icon"></span>
+                </a>
+                <a class="carousel-control-next" href="#blog-carousel" data-slide="next">
+                    <span class="carousel-control-next-icon"></span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Sobre Nosotros -->
+        <div class="container-fluid py-5">
+            <div class="container">
+                <div class="section-title">
+                    <h4 class="text-primary text-uppercase" style="letter-spacing: 5px;">Sobre Nosotros</h4>
+                    <h1 class="display-4">A su servicio desde el 2015</h1>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 py-0 py-lg-5">
+                        <h1 class="mb-3">Nuestra Historia</h1>
+                        <h5 class="mb-3">Disfruta de nuestro café artesanal y gastronomía local en un ambiente cálido. Desde hace una década, La Masseria ha sido más que una cafetería; ha sido un refugio para quienes buscan sabor, tradición y momentos memorables....</h5>
+                        <a href="/nosotros" class="btn btn-secondary font-weight-bold py-2 px-4 mt-2">Conoce más</a>
+                    </div>
+                    <div class="col-lg-4 py-5 py-lg-0" style="min-height: 500px;">
+                        <div class="position-relative h-100">
+                            <video autoplay muted loop class="w-100 h-100" style="object-fit: cover;">
+                                <source src="/img/about.mp4" type="video/mp4">
+                                Tu navegador no soporta videos HTML5.
+                            </video>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 py-0 py-lg-5">
+                        <h1 class="mb-3">Nuestra Visión</h1>
+                        <h5 class="mb-3">Ser una cafetería referente en nuestra ciudad por su propuesta de valor, calidad de productos y conexión genuina con sus clientes. Aspiramos a expandir nuestra comunidad a través de canales digitales, posicionándonos como una marca moderna, accesible y comprometida con la excelencia. Queremos que La Masseria sea reconocida no solo por su café, sino por la experiencia única que representa</h5>
+                        <a href="/nosotros" class="btn btn-primary font-weight-bold py-2 px-4 mt-2">Conoce más</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Servicio Inicio -->
+        <div class="container-fluid pt-5">
+            <div class="container">
+                <div class="section-title">
+                    <h4 class="text-primary text-uppercase" style="letter-spacing: 5px;">Nuestros Servicios</h4>
+                    <h1 class="display-4">Granos de Café Frescos & Organicos</h1>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6 mb-5">
+                        <div class="row align-items-center">
+                            <div class="col-sm-5">
+                                <img class="img-fluid mb-3 mb-sm-0" src="img/service-1.jpg" alt="">
+                            </div>
+                            <div class="col-sm-7">
+                                <h4><i class="fa fa-truck service-icon"></i>Entrega rápida a domicilio</h4>
+                                <p class="m-0">Disfruta de tus bebidas y postres favoritos sin salir de casa. Nuestro servicio de delivery es rápido, confiable y pensado para ti.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 mb-5">
+                        <div class="row align-items-center">
+                            <div class="col-sm-5">
+                                <img class="img-fluid mb-3 mb-sm-0" src="img/service-2.jpg" alt="">
+                            </div>
+                            <div class="col-sm-7">
+                                <h4><i class="fa fa-coffee service-icon"></i>Granos de café frescos y seleccionados</h4>
+                                <p class="m-0">Usamos granos recién tostados de alta calidad para garantizar un aroma y sabor inigualables en cada taza. La frescura es nuestra promesa.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 mb-5">
+                        <div class="row align-items-center">
+                            <div class="col-sm-5">
+                                <img class="img-fluid mb-3 mb-sm-0" src="img/service-3.jpg" alt="">
+                            </div>
+                            <div class="col-sm-7">
+                                <h4><i class="fa fa-award service-icon"></i>Café de la mejor calidad</h4>
+                                <p class="m-0">Seleccionamos cuidadosamente cada grano para ofrecerte una taza con sabor intenso, aroma envolvente y calidad garantizada en cada sorbo.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 mb-5">
+                        <div class="row align-items-center">
+                            <div class="col-sm-5">
+                                <img class="img-fluid mb-3 mb-sm-0" src="img/service-4.jpg" alt="">
+                            </div>
+                            <div class="col-sm-7">
+                                <h4><i class="fa fa-table service-icon"></i>Reserva tu mesa en línea</h4>
+                                <p class="m-0">Evita esperas y asegura tu lugar con solo unos clics. Nuestro sistema de reservas es rápido, fácil y disponible las 24 horas.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Service Fin -->
+        
+        <!-- Oferta Inicio - CORREGIDA Y CENTRADA -->
+        <div class="offer container-fluid my-5 py-5 text-center position-relative overlay-top overlay-bottom">
+            <div class="container py-5">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <h1 class="display-3 text-primary mt-3">30% de Descuento</h1>
+                        <h1 class="text-white mb-3">Oferta especial</h1>
+                        <h4 class="text-white font-weight-normal mb-4 pb-3">Exclusivo para nuevos clientes en su primer consumo</h4>
+                        <div class="text-center">
+                            <a href="/registro" class="btn btn-primary font-weight-bold px-5 py-3" style="font-size: 1.5rem;">Regístrate</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Oferta Fin -->
+
+        <!-- Menu-Masseria Inicio -->
+        <div class="container-fluid pt-5">
+            <div class="container">
+                <div class="section-title">
+                    <h4 class="text-primary text-uppercase" style="letter-spacing: 5px;">Menú & Precios</h4>
+                    <h1 class="display-4">Precios inigualables</h1>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h1 class="mb-5">Desayuno</h1>
+                        <div class="row align-items-center mb-5">
+                            <div class="col-4 col-sm-3">
+                                <img class="menu-img mb-3 mb-sm-0" src="img/sand_pollo.jpg" alt="">
+                                <h5 class="menu-price">S/ 7</h5>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                <h4>Sandwich de pollo</h4>
+                                <p class="m-0">Sandwich de pollo clásico</p>
+                            </div>
+                        </div>
+                        <div class="row align-items-center mb-5">
+                            <div class="col-4 col-sm-3">
+                                <img class="menu-img mb-3 mb-sm-0" src="img/huevos_rancheros.jpg" alt="">
+                                <h5 class="menu-price">S/ 6</h5>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                <h4>Huevos rancheros</h4>
+                                <p class="m-0">Huevos rancheros con especias saludables</p>
+                            </div>
+                            <a href="desayunos.html" class="btn btn-primary font-weight-bold py-2 px-4 mt-2">Conoce más</a>
+                        </div>
+                    <h1 class="mb-5">Bebidas Calientes</h1>
+                        <div class="row align-items-center mb-5">
+                            <div class="col-4 col-sm-3">
+                                <img class="menu-img mb-3 mb-sm-0" src="img/cafe_americano.jpg" alt="">
+                                <h5 class="menu-price">S/ 6</h5>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                <h4>Americano</h4>
+                                <p class="m-0">Café negro tradicional, fuerte y aromático</p>
+                            </div>
+                        </div>
+                        <div class="row align-items-center mb-5">
+                            <div class="col-4 col-sm-3">
+                                <img class="menu-img mb-3 mb-sm-0" src="img/cefe_latte.jpg" alt="">
+                                <h5 class="menu-price">S/ 7</h5>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                <h4>Latte</h4>
+                                <p class="m-0">Expresso con leche vaporizada, suave y cremoso</p>
+                            </div>
+                            <a href="bebidas_calientes.html" class="btn btn-primary font-weight-bold py-2 px-4 mt-2">Conoce más</a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <h1 class="mb-5">Bebidas Frías</h1>
+                        <div class="row align-items-center mb-5">
+                            <div class="col-4 col-sm-3">
+                                <img class="menu-img mb-3 mb-sm-0" src="img/cafe_frio.jpg" alt="">
+                                <h5 class="menu-price">S/ 9</h5>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                <h4>Iced Coffee</h4>
+                                <p class="m-0">Café frío con hielo y un toque de azúcar</p>
+                            </div>
+                        </div>
+                        <div class="row align-items-center mb-5">
+                            <div class="col-4 col-sm-3">
+                                <img class="menu-img mb-3 mb-sm-0" src="img/te_limonFrio.jpg" alt="">
+                                <h5 class="menu-price">S/ 8</h5>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                <h4>Té Helado</h4>
+                                <p class="m-0">Infusión natural de té con limón y hielo</p>
+                            </div>
+                            <a href="bebidas_frias.html" class="btn btn-secondary font-weight-bold py-2 px-4 mt-2">Conoce más</a>
+                        </div>
+                    <h1 class="mb-5">Postres</h1>
+                        <div class="row align-items-center mb-5">
+                            <div class="col-4 col-sm-3">
+                                <img class="menu-img mb-3 mb-sm-0" src="img/postre_heladoVainilla.jpg" alt="">
+                                <h5 class="menu-price">S/ 8</h5>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                <h4>Helado de vainilla</h4>
+                                <p class="m-0">Helado cremoso con sabor a vainilla natural</p>
+                            </div>
+                        </div>
+                        <div class="row align-items-center mb-5">
+                            <div class="col-4 col-sm-3">
+                                <img class="menu-img mb-3 mb-sm-0" src="img/postre_galletasArtesanales.jpg" alt="">
+                                <h5 class="menu-price">S/ 9</h5>
+                            </div>
+                            <div class="col-8 col-sm-9">
+                                <h4>Galletas artesanales</h4>
+                                <p class="m-0">Hechas a mano con chispas de chocolate</p>
+                            </div>
+                            <a href="postres.html" class="btn btn-secondary font-weight-bold py-2 px-4 mt-2">Conoce más</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Menu-Masseria Fin -->
+
+        <!-- Reservacion Inicio - CORREGIDA Y CENTRADA -->
+        <div class="container-fluid my-5">
+            <div class="container">
+                <div class="reservation position-relative overlay-top overlay-bottom">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8 my-5 my-lg-0">
+                            <div class="p-5 text-center">
+                                <div class="mb-4">
+                                    <h1 class="display-3 text-primary">Reservas en Línea</h1>
+                                </div>
+                                <p class="text-white">Disfruta lo mejor de la Masseria con solo unos clics, reserva en línea, asegura tu mesa y aprovecha un descuento pensado para ti.</p>
+                                <ul class="list-inline text-white m-0 text-left d-inline-block">
+                                    <li class="py-2"><i class="fa fa-check text-primary mr-3"></i>Evita filas y tiempos de espera</li>
+                                    <li class="py-2"><i class="fa fa-check text-primary mr-3"></i>Accede a productos limitados y promociones especiales</li>
+                                    <li class="py-2"><i class="fa fa-check text-primary mr-3"></i>Reserva fácil, rápida y desde cualquier lugar</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Reservacion Fin -->
+
+        <!-- Testimonios Inicio -->
+        <div class="container-fluid py-5">
+            <div class="container">
+                <div class="section-title text-center">
+                    <h4 class="text-primary text-uppercase" style="letter-spacing: 5px;">TESTIMONIOS</h4>
+                    <h1 class="display-4">Nuestros clientes dicen</h1>
+                </div>
+                <div class="row">
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="testimonial-item bg-light rounded p-4 h-100">
+                            <div class="d-flex align-items-center mb-3">
+                                <img class="img-fluid rounded-circle mr-3" src="/img/testimonial-4.jpg" alt="Lucía Cáceres" style="width: 80px; height: 80px; object-fit: cover;">
+                                <div>
+                                    <h4 class="mb-1">Lucía Cáceres</h4>
+                                    <p class="text-muted mb-0"><em>Estudiante</em></p>
+                                </div>
+                            </div>
+                            <p class="m-0">La Masseria me inspira. Cada detalle, desde los pasteles hasta el servicio, refleja calidad. Es el lugar perfecto para tener reuniones, trabajar desde mi laptop o simplemente disfrutar de un latte.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="testimonial-item bg-light rounded p-4 h-100">
+                            <div class="d-flex align-items-center mb-3">
+                                <img class="img-fluid rounded-circle mr-3" src="/img/testimonial-1.jpg" alt="Camila Ríos" style="width: 80px; height: 80px; object-fit: cover;">
+                                <div>
+                                    <h4 class="mb-1">Camila Ríos</h4>
+                                    <p class="text-muted mb-0"><em>Diseñadora gráfica</em></p>
+                                </div>
+                            </div>
+                            <p class="m-0">La Masseria se ha convertido en mi lugar favorito para desconectarme. Sus pasteles son exquisitos y el café tiene ese sabor casero que no se encuentra en cualquier sitio. Me encanta reservar en línea, llego y todo está listo. ¡Una atención de primera!</p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="testimonial-item bg-light rounded p-4 h-100">
+                            <div class="d-flex align-items-center mb-3">
+                                <img class="img-fluid rounded-circle mr-3" src="/img/testimonial-2.jpg" alt="Valerio García" style="width: 80px; height: 80px; object-fit: cover;">
+                                <div>
+                                    <h4 class="mb-1">Valerio García</h4>
+                                    <p class="text-muted mb-0"><em>Abogado</em></p>
+                                </div>
+                            </div>
+                            <p class="m-0">Después de un día lleno de reuniones, lo que más disfruto es venir aquí. El ambiente es cálido, los bocaditos son perfectos para compartir y siempre encuentro un rincón para relajarme con un buen café.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Testimonios Fin -->
+    </main>
+
+    <!-- Footer -->
+    <div th:replace="~{base :: footer}"></div>
+    
+    <!-- Scripts -->
+    <div th:replace="~{base :: scripts}"></div>
+    
+    <!-- Botones flotantes -->
+    <div th:replace="~{base :: floating-buttons}"></div>
+</body>
+</html>

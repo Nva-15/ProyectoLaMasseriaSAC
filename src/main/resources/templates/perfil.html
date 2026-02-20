@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <title>Mi Perfil - La Masseria</title>
+</head>
+<body>
+    <!-- FORMULARIO ENCIMA DEL NAVBAR -->
+    <div class="container-fluid py-4" style="background: white;">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-lg border-0 rounded-lg">
+                    <div class="card-header" style="background: #c49b63; color: white; border-radius: 10px 10px 0 0;">
+                        <h3 class="text-center font-weight-light my-2">
+                            <i class="fa fa-user-circle mr-2"></i>Mi Perfil
+                        </h3>
+                        <p class="text-center mb-0" style="opacity: 0.9;">Bienvenido, <span th:text="${usuario.nombres}"></span></p>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <!-- Mensajes de éxito -->
+                        <div th:if="${mensaje != null}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fa fa-check-circle mr-2"></i>
+                            <span th:text="${mensaje}"></span>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        
+                        <!-- Información del Perfil -->
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-4">
+                                <div style="font-size: 150px; color: #c49b63;">
+                                    <i class="fa fa-user-circle"></i>
+                                </div>
+                                <h4 th:text="${usuario.nombres} + ' ' + ${usuario.apellidos}"></h4>
+                                <p class="badge" style="background: #c49b63; color: white; padding: 8px 20px;" 
+                                   th:text="${usuario.rol}"></p>
+                            </div>
+                            
+                            <div class="col-md-8">
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0"><i class="fa fa-info-circle mr-2 text-primary"></i>Datos Personales</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <th style="width: 150px;"><i class="fa fa-id-card text-primary mr-2"></i>DNI:</th>
+                                                <td th:text="${usuario.dni}"></td>
+                                            </tr>
+                                            <tr>
+                                                <th><i class="fa fa-envelope text-primary mr-2"></i>Email:</th>
+                                                <td th:text="${usuario.email}"></td>
+                                            </tr>
+                                            <tr>
+                                                <th><i class="fa fa-phone text-primary mr-2"></i>Teléfono:</th>
+                                                <td th:text="${usuario.telefono}"></td>
+                                            </tr>
+                                            <tr>
+                                                <th><i class="fa fa-map-marker text-primary mr-2"></i>Dirección:</th>
+                                                <td th:text="${usuario.direccion}"></td>
+                                            </tr>
+                                            <tr>
+                                                <th><i class="fa fa-calendar text-primary mr-2"></i>Registro:</th>
+                                                <td th:text="${#temporals.format(usuario.fechaRegistro, 'dd/MM/yyyy HH:mm')}"></td>
+                                            </tr>
+                                            <tr>
+                                                <th><i class="fa fa-clock text-primary mr-2"></i>Último Acceso:</th>
+                                                <td th:text="${usuario.ultimoAcceso != null ? #temporals.format(usuario.ultimoAcceso, 'dd/MM/yyyy HH:mm') : 'Primer ingreso'}"></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botones de acción -->
+                                <div class="row mt-4">
+                                    <div class="col-md-6">
+                                        <a href="/pedidos" class="btn btn-primary btn-block" style="background: #c49b63; border: none;">
+                                            <i class="fa fa-box mr-2"></i>Mis Pedidos
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <a href="/" class="btn btn-secondary btn-block">
+                                            <i class="fa fa-home mr-2"></i>Volver al Inicio
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AHORA EL NAVBAR -->
+    <div th:replace="~{base :: navbar}"></div>
+
+    <div th:replace="~{base :: footer}"></div>
+    <div th:replace="~{base :: scripts}"></div>
+    <div th:replace="~{base :: floating-buttons}"></div>
+</body>
+</html>

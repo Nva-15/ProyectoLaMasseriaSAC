@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(if not exist \"D:\\\\UTP\\\\Verano 2026\\\\Innovación y Transformación Digital\\\\ProyectoLaMasseriaSAC\\\\src\\\\main\\\\resources\\\\templates\\\\admin\" mkdir \"D:\\\\UTP\\\\Verano 2026\\\\Innovación y Transformación Digital\\\\ProyectoLaMasseriaSAC\\\\src\\\\main\\\\resources\\\\templates\\\\admin\")",
+      "mcp__ide__getDiagnostics"
+    ]
+  }
+}

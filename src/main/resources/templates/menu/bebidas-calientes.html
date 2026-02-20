@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>La Masseria - Bebidas Calientes</title>
+    
+    <style>
+        /* Botón flotante del carrito */
+        .floating-cart-btn {
+            position: fixed;
+            bottom: 120px;
+            left: 30px;
+            width: 70px;
+            height: 70px;
+            background: #c49b63;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            font-size: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 3px solid white;
+            cursor: pointer;
+        }
+        
+        .floating-cart-btn:hover {
+            background: #b38b52;
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 8px 25px rgba(196, 155, 99, 0.5);
+            color: white;
+        }
+        
+        .floating-cart-btn .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border: 2px solid white;
+        }
+        
+        .menu1-section {
+            padding: 40px 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .menu1-section h1 {
+            text-align: center;
+            color: #c49b63;
+            font-weight: 700;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .menu1-items {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 25px;
+            padding: 20px;
+        }
+        
+        .item {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            border: 1px solid rgba(196, 155, 99, 0.2);
+        }
+        
+        .item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(196, 155, 99, 0.15);
+            border-color: #c49b63;
+        }
+        
+        .item img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+        
+        .item h3 {
+            margin: 15px 0 5px;
+            color: #333;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+            padding: 0 10px;
+        }
+        
+        .item p {
+            display: none;
+        }
+        
+        .price-tag {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 75px;
+            height: 65px;
+            background: #c49b63;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 3px solid white;
+            z-index: 10;
+            line-height: 1.2;
+            text-align: center;
+        }
+        
+        .price-tag::before {
+            content: 'S/';
+            font-size: 0.7rem;
+            font-weight: normal;
+            margin-top: 2px;
+            margin-right: 2px;
+        }
+        
+        .item:hover .price-tag {
+            background: white;
+            color: #c49b63;
+            border-color: #c49b63;
+            transform: scale(1.1);
+        }
+        
+        /* Botón Agregar */
+        .btn-add-to-cart {
+            background: #c49b63;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: calc(100% - 30px);
+            margin: 0 15px 20px 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 10px rgba(196, 155, 99, 0.2);
+        }
+
+        .btn-add-to-cart:hover {
+            background: #b38b52;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(196, 155, 99, 0.3);
+        }
+        
+        .btn-volver-submenu {
+            position: fixed;
+            top: 100px;
+            left: 20px;
+            background: #c49b63;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .btn-siguiente-submenu {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #c49b63;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .btn-volver-submenu:hover, 
+        .btn-siguiente-submenu:hover {
+            background: white;
+            color: #c49b63;
+            border-color: #c49b63;
+            text-decoration: none;
+            transform: scale(1.05);
+        }
+        
+        /* Notificación de carrito */
+        .cart-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #28a745, #218838);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 9999;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            font-weight: 600;
+            border: 2px solid white;
+        }
+        
+        .cart-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .menu1-items {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .menu1-items {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .menu1-items {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            
+            .btn-volver-submenu {
+                top: 80px;
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+            
+            .btn-siguiente-submenu {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            
+            .floating-cart-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+                bottom: 100px;
+                left: 20px;
+            }
+            
+            .item img {
+                height: 150px;
+            }
+            
+            .price-tag {
+                width: 55px;
+                height: 55px;
+                font-size: 1rem;
+            }
+            
+            .menu1-section h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .menu1-items {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-siguiente-submenu {
+                right: 15px;
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar (usando fragmento de base.html) -->
+    <div th:replace="~{base :: navbar}"></div>
+
+    <!-- Page Header Inicio -->
+    <div class="container-fluid page-header mb-5 position-relative overlay-bottom">
+        <div class="d-flex flex-column align-items-center justify-content-center pt-0 pt-lg-5" style="min-height: 400px">
+            <h1 class="display-4 mb-3 mt-0 mt-lg-5 text-white text-uppercase">Bebidas Calientes</h1>
+        </div>
+    </div>
+
+    <!-- Botón flotante del carrito -->
+    <div class="floating-cart-btn" id="floating-cart-btn" onclick="window.location.href='/pedidos'">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count" id="floating-cart-count">0</span>
+    </div>
+
+    <!-- Sección-Bebidas Calientes Inicio -->
+    <section class="menu1-section">
+        <h1 th:text="${titulo}">Bebidas Calientes</h1>
+        <div class="menu1-items">
+            <!-- Mensaje si no hay productos -->
+            <div th:if="${#lists.isEmpty(productos)}" class="text-center w-100">
+                <p>No hay productos disponibles en esta categoría.</p>
+            </div>
+            
+            <!-- Iteración sobre productos de la BD -->
+            <div th:each="producto : ${productos}" class="item" 
+                 th:data-id="${producto.id}" 
+                 th:data-nombre="${producto.nombre}" 
+                 th:data-precio="${producto.precio}">
+                <div class="price-tag">
+                    <span style="font-size: 0.7rem; font-weight: normal; margin-right: 2px;">S/</span>
+                    <span th:text="${#numbers.formatInteger(producto.precio, 1)}">15</span>
+                </div>
+                <div class="image-container" style="position: relative; width: 100%; height: 180px; overflow: hidden;" 
+                     onmouseenter="this.querySelector('.image-overlay').style.opacity='1'" 
+                     onmouseleave="this.querySelector('.image-overlay').style.opacity='0'">
+                    <img th:src="${producto.imagenUrl != null ? producto.imagenUrl : '/img/default-product.jpg'}" 
+                         th:alt="${producto.nombre}" 
+                         style="width: 100%; height: 100%; object-fit: cover;">
+                    <div class="image-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; display: flex; align-items: center; justify-content: center; text-align: center; padding: 15px; opacity: 0; transition: opacity 0.3s ease; border-radius: 12px 12px 0 0; pointer-events: none;">
+                        <p style="margin: 0; font-size: 0.9rem; line-height: 1.5; color: white;" th:text="${producto.descripcion != null ? producto.descripcion : 'Delicioso producto de nuestra cafetería.'}">Descripción del producto</p>
+                    </div>
+                </div>
+                <h3 th:text="${producto.nombre}">Nombre del producto</h3>
+                
+                <div style="display: flex; justify-content: center; gap: 8px; margin: 15px;">
+                    <span style="width: 36px; height: 36px; background: #f0f0f0; border: 1px solid #999; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.4rem; font-weight: bold; color: #333; line-height: 1;" th:onclick="'cambiarCantidad(' + ${producto.id} + ', -1)'">−</span>
+                    
+                    <input type="number" value="1" min="1" max="10" th:id="'qty-' + ${producto.id}" readonly 
+                           style="width: 45px; height: 36px; border: 1px solid #999; border-radius: 4px; background: white; font-size: 1.1rem; font-weight: 700; color: #333; text-align: center; padding: 0; margin: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; line-height: 1;">
+                    
+                    <span style="width: 36px; height: 36px; background: #f0f0f0; border: 1px solid #999; border-radius: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.4rem; font-weight: bold; color: #333; line-height: 1;" th:onclick="'cambiarCantidad(' + ${producto.id} + ', 1)'">+</span>
+                </div>
+                
+                <button class="btn-add-to-cart" th:onclick="'agregarAlCarrito(' + ${producto.id} + ')'">
+                    <i class="fas fa-cart-plus"></i> Agregar
+                </button>
+            </div>
+        </div>
+    </section>
+    <!-- Sección-Bebidas Calientes Fin -->
+
+    <!-- Botones de navegación -->
+    <a href="/menu/desayunos" class="btn-volver-submenu">
+        ← Volver a Desayunos
+    </a>
+
+    <a href="/menu/bebidas-frias" class="btn-siguiente-submenu">
+        Siguiente: Bebidas Frías <i class="fa fa-arrow-right"></i>
+    </a>
+
+    <!-- Footer (usando fragmento de base.html) -->
+    <div th:replace="~{base :: footer}"></div>
+    
+    <!-- Scripts (usando fragmento de base.html) -->
+    <div th:replace="~{base :: scripts}"></div>
+
+    <!-- Script para el carrito y cantidades -->
+    <script>
+        // Función para cambiar cantidad
+        function cambiarCantidad(productoId, cambio) {
+            const input = document.getElementById(`qty-${productoId}`);
+            let valor = parseInt(input.value) + cambio;
+            
+            if (valor < 1) valor = 1;
+            if (valor > 10) valor = 10;
+            
+            input.value = valor;
+        }
+        
+        // Función para agregar productos al carrito
+        function agregarAlCarrito(productoId) {
+            // Obtener datos del producto
+            const producto = document.querySelector(`.item[data-id="${productoId}"]`);
+            const nombre = producto.dataset.nombre;
+            const precio = parseFloat(producto.dataset.precio);
+            const cantidad = parseInt(document.getElementById(`qty-${productoId}`).value);
+            
+            // Calcular subtotal
+            const subtotal = precio * cantidad;
+            
+            // Crear objeto del item
+            const item = {
+                id: productoId,
+                nombre: nombre,
+                precio: precio,
+                cantidad: cantidad,
+                subtotal: subtotal,
+                imagen: producto.querySelector('img').src
+            };
+            
+            // Obtener carrito actual de localStorage
+            let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+            
+            // Verificar si el producto ya existe en el carrito
+            const existenteIndex = carrito.findIndex(i => i.id === productoId);
+            
+            if (existenteIndex >= 0) {
+                // Actualizar cantidad y subtotal
+                carrito[existenteIndex].cantidad += cantidad;
+                carrito[existenteIndex].subtotal = carrito[existenteIndex].precio * carrito[existenteIndex].cantidad;
+            } else {
+                // Agregar nuevo item
+                carrito.push(item);
+            }
+            
+            // Guardar en localStorage
+            localStorage.setItem('carrito', JSON.stringify(carrito));
+            
+            // Mostrar notificación
+            mostrarNotificacion(`${nombre} agregado al carrito (x${cantidad})`);
+            
+            // Actualizar contador
+            actualizarContadorCarrito();
+        }
+
+        // Función para mostrar notificaciones
+        function mostrarNotificacion(mensaje) {
+            const notificacion = document.createElement('div');
+            notificacion.className = 'cart-notification';
+            notificacion.textContent = mensaje;
+            document.body.appendChild(notificacion);
+            
+            setTimeout(() => {
+                notificacion.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                notificacion.classList.remove('show');
+                setTimeout(() => {
+                    if (notificacion.parentNode) {
+                        document.body.removeChild(notificacion);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Función para actualizar el contador del carrito
+        function actualizarContadorCarrito() {
+            const carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+            const totalItems = carrito.reduce((sum, item) => sum + item.cantidad, 0);
+            
+            // Actualizar botón flotante
+            const floatingCount = document.getElementById('floating-cart-count');
+            if (floatingCount) {
+                floatingCount.textContent = totalItems;
+            }
+        }
+
+        // Actualizar contador al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            actualizarContadorCarrito();
+        });
+    </script>
+    
+    <!-- Botones flotantes -->
+    <div th:replace="~{base :: floating-buttons}"></div>
+</body>
+</html>
