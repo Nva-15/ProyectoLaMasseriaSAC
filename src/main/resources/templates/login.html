@@ -3,11 +3,11 @@
 <head th:replace="~{base :: head}">
     <title>Iniciar Sesión - La Masseria</title>
 </head>
-<body>
-    <!-- FORMULARIO ENCIMA DEL NAVBAR -->
-    <div class="container-fluid py-4" style="background: white;">
-        <div class="row justify-content-center">
-            <div class="col-md-4">
+<body style="min-height: 100vh; display: flex; flex-direction: column;">
+    <!-- Área principal centrada verticalmente -->
+    <div class="container-fluid" style="flex: 1; display: flex; align-items: center; background: white; padding: 2rem 0;">
+        <div class="row justify-content-center w-100">
+            <div class="col-md-4 col-sm-10">
                 <div class="card shadow-lg border-0 rounded-lg">
                     <div class="card-header" style="background: #c49b63; color: white; border-radius: 10px 10px 0 0;">
                         <h3 class="text-center font-weight-light my-2">
@@ -97,7 +97,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+                </div>
         </div>
     </div>
 
