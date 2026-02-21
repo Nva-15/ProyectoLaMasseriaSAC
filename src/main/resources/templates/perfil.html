@@ -4,7 +4,6 @@
     <title>Mi Perfil - La Masseria</title>
 </head>
 <body>
-    <!-- FORMULARIO ENCIMA DEL NAVBAR -->
     <div class="container-fluid py-4" style="background: white;">
         <div class="row justify-content-center">
             <div class="col-md-8">
@@ -13,19 +12,22 @@
                         <h3 class="text-center font-weight-light my-2">
                             <i class="fa fa-user-circle mr-2"></i>Mi Perfil
                         </h3>
-                        <p class="text-center mb-0" style="opacity: 0.9;">Bienvenido, <span th:text="${usuario.nombres}"></span></p>
+                        <p class="text-center mb-0" style="opacity: 0.9;">
+                            Bienvenido, <span th:text="${usuario.nombres}"></span>
+                        </p>
                     </div>
-                    
+
                     <div class="card-body p-4">
-                        <!-- Mensajes de éxito -->
-                        <div th:if="${mensaje != null}" class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="fa fa-check-circle mr-2"></i>
-                            <span th:text="${mensaje}"></span>
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
+                        <!-- Alertas -->
+                        <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fa fa-check-circle mr-2"></i>[[${mensaje}]]
+                            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
                         </div>
-                        
+                        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fa fa-exclamation-circle mr-2"></i>[[${error}]]
+                            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                        </div>
+
                         <!-- Información del Perfil -->
                         <div class="row">
                             <div class="col-md-4 text-center mb-4">
@@ -33,20 +35,22 @@
                                     <i class="fa fa-user-circle"></i>
                                 </div>
                                 <h4 th:text="${usuario.nombres} + ' ' + ${usuario.apellidos}"></h4>
-                                <p class="badge" style="background: #c49b63; color: white; padding: 8px 20px;" 
+                                <p class="badge" style="background: #c49b63; color: white; padding: 8px 20px;"
                                    th:text="${usuario.rol}"></p>
                             </div>
-                            
+
                             <div class="col-md-8">
                                 <div class="card">
                                     <div class="card-header bg-light">
-                                        <h5 class="mb-0"><i class="fa fa-info-circle mr-2 text-primary"></i>Datos Personales</h5>
+                                        <h5 class="mb-0">
+                                            <i class="fa fa-info-circle mr-2 text-primary"></i>Datos Personales
+                                        </h5>
                                     </div>
                                     <div class="card-body">
                                         <table class="table table-borderless">
                                             <tr>
                                                 <th style="width: 150px;"><i class="fa fa-id-card text-primary mr-2"></i>DNI:</th>
-                                                <td th:text="${usuario.dni}"></td>
+                                                <td th:text="${usuario.dni ?: '-'}"></td>
                                             </tr>
                                             <tr>
                                                 <th><i class="fa fa-envelope text-primary mr-2"></i>Email:</th>
@@ -54,11 +58,11 @@
                                             </tr>
                                             <tr>
                                                 <th><i class="fa fa-phone text-primary mr-2"></i>Teléfono:</th>
-                                                <td th:text="${usuario.telefono}"></td>
+                                                <td th:text="${usuario.telefono ?: '-'}"></td>
                                             </tr>
                                             <tr>
                                                 <th><i class="fa fa-map-marker text-primary mr-2"></i>Dirección:</th>
-                                                <td th:text="${usuario.direccion}"></td>
+                                                <td th:text="${usuario.direccion ?: '-'}"></td>
                                             </tr>
                                             <tr>
                                                 <th><i class="fa fa-calendar text-primary mr-2"></i>Registro:</th>
@@ -71,19 +75,31 @@
                                         </table>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Botones de acción -->
                                 <div class="row mt-4">
-                                    <div class="col-md-6">
+                                    <div class="col-md-4 mb-2">
                                         <a href="/pedidos" class="btn btn-primary btn-block" style="background: #c49b63; border: none;">
                                             <i class="fa fa-box mr-2"></i>Mis Pedidos
                                         </a>
                                     </div>
-                                    <div class="col-md-6">
-                                        <a href="/" class="btn btn-secondary btn-block">
-                                            <i class="fa fa-home mr-2"></i>Volver al Inicio
+                                    <div class="col-md-4 mb-2">
+                                        <a href="/reservaciones" class="btn btn-outline-secondary btn-block">
+                                            <i class="fa fa-calendar-alt mr-2"></i>Reservaciones
                                         </a>
                                     </div>
+                                    <div class="col-md-4 mb-2">
+                                        <button type="button" class="btn btn-outline-primary btn-block"
+                                                data-toggle="modal" data-target="#modalEditarPerfil">
+                                            <i class="fa fa-user-edit mr-2"></i>Editar Perfil
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mt-2">
+                                    <a href="/" class="btn btn-light btn-block">
+                                        <i class="fa fa-home mr-2"></i>Volver al Inicio
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -93,11 +109,172 @@
         </div>
     </div>
 
-    <!-- AHORA EL NAVBAR -->
-    <div th:replace="~{base :: navbar}"></div>
+    <!-- ===== MODAL EDITAR PERFIL ===== -->
+    <div class="modal fade" id="modalEditarPerfil" tabindex="-1" role="dialog" aria-labelledby="modalEditarPerfilLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-white" style="background: #c49b63;">
+                    <h5 class="modal-title" id="modalEditarPerfilLabel">
+                        <i class="fa fa-user-edit mr-2"></i>Editar Perfil
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
 
+                <form action="/perfil/editar" method="post" id="formEditarPerfil">
+                    <div class="modal-body">
+
+                        <!-- Datos personales -->
+                        <h6 class="text-muted font-weight-bold mb-3 border-bottom pb-2">
+                            <i class="fa fa-id-card mr-1"></i> Datos Personales
+                        </h6>
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label class="small font-weight-bold text-muted">Nombres</label>
+                                <input type="text" class="form-control" name="nombres"
+                                       th:value="${usuario.nombres}" placeholder="Tus nombres">
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label class="small font-weight-bold text-muted">Apellidos</label>
+                                <input type="text" class="form-control" name="apellidos"
+                                       th:value="${usuario.apellidos}" placeholder="Tus apellidos">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 form-group">
+                                <label class="small font-weight-bold text-muted">DNI</label>
+                                <input type="text" class="form-control" name="dni"
+                                       th:value="${usuario.dni}" placeholder="12345678" maxlength="8">
+                            </div>
+                            <div class="col-md-4 form-group">
+                                <label class="small font-weight-bold text-muted">Teléfono</label>
+                                <input type="text" class="form-control" name="telefono"
+                                       th:value="${usuario.telefono}" placeholder="9XXXXXXXX">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="small font-weight-bold text-muted">Dirección</label>
+                            <input type="text" class="form-control" name="direccion"
+                                   th:value="${usuario.direccion}" placeholder="Tu dirección">
+                        </div>
+
+                        <!-- Datos de acceso -->
+                        <h6 class="text-muted font-weight-bold mb-3 border-bottom pb-2 mt-3">
+                            <i class="fa fa-lock mr-1"></i> Datos de Acceso
+                        </h6>
+                        <div class="form-group">
+                            <label class="small font-weight-bold text-muted">Email</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                                </div>
+                                <input type="email" class="form-control" name="email"
+                                       th:value="${usuario.email}" required>
+                            </div>
+                            <small class="form-text text-muted">Si lo cambias, úsalo para iniciar sesión la próxima vez.</small>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 form-group">
+                                <label class="small font-weight-bold text-muted">Nueva contraseña</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-key"></i></span>
+                                    </div>
+                                    <input type="password" class="form-control" name="nuevaPassword"
+                                           id="nuevaPass" placeholder="Dejar vacío para no cambiar"
+                                           autocomplete="new-password">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary"
+                                                onclick="togglePass('nuevaPass', this)">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                <label class="small font-weight-bold text-muted">Confirmar contraseña</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-key"></i></span>
+                                    </div>
+                                    <input type="password" class="form-control" name="confirmarPassword"
+                                           id="confirmarPass" placeholder="Repetir nueva contraseña"
+                                           autocomplete="new-password">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary"
+                                                onclick="togglePass('confirmarPass', this)">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="alertaPass" class="alert alert-danger py-1 small d-none">
+                            <i class="fa fa-exclamation-circle mr-1"></i> Las contraseñas no coinciden.
+                        </div>
+
+                    </div><!-- /modal-body -->
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">
+                            <i class="fa fa-times mr-1"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn text-white" style="background: #c49b63;">
+                            <i class="fa fa-save mr-1"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVBAR -->
+    <div th:replace="~{base :: navbar}"></div>
     <div th:replace="~{base :: footer}"></div>
     <div th:replace="~{base :: scripts}"></div>
     <div th:replace="~{base :: floating-buttons}"></div>
+
+    <script>
+        // Abrir modal automáticamente si hubo un error al guardar
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('editar') === 'true') {
+            $('#modalEditarPerfil').modal('show');
+        }
+
+        function togglePass(fieldId, btn) {
+            var input = document.getElementById(fieldId);
+            var icon  = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        var np     = document.getElementById('nuevaPass');
+        var cp     = document.getElementById('confirmarPass');
+        var alerta = document.getElementById('alertaPass');
+
+        function checkPass() {
+            if (np.value && cp.value && np.value !== cp.value) {
+                alerta.classList.remove('d-none');
+            } else {
+                alerta.classList.add('d-none');
+            }
+        }
+        np.addEventListener('input', checkPass);
+        cp.addEventListener('input', checkPass);
+
+        document.getElementById('formEditarPerfil').addEventListener('submit', function(e) {
+            if (np.value && cp.value && np.value !== cp.value) {
+                e.preventDefault();
+                alerta.classList.remove('d-none');
+                cp.focus();
+            }
+        });
+    </script>
 </body>
 </html>

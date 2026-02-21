@@ -66,8 +66,17 @@
                                 <label class="small mb-1" for="password">
                                     <i class="fa fa-lock text-primary mr-1"></i>Contraseña
                                 </label>
-                                <input class="form-control py-3" id="password" name="password" 
-                                       type="password" placeholder="Ingresa tu contraseña" required />
+                                <div class="input-group">
+                                    <input class="form-control py-3" id="password" name="password"
+                                           type="password" placeholder="Ingresa tu contraseña" required />
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary"
+                                                onclick="togglePassword()" id="btnVerPass"
+                                                title="Mostrar / Ocultar contraseña">
+                                            <i class="fa fa-eye" id="iconoOjo"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                             <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0">
                                 <div class="form-check">
@@ -95,5 +104,19 @@
     <div th:replace="~{base :: footer}"></div>
     <div th:replace="~{base :: scripts}"></div>
     <div th:replace="~{base :: floating-buttons}"></div>
+
+    <script>
+        function togglePassword() {
+            var input = document.getElementById('password');
+            var icono = document.getElementById('iconoOjo');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icono.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icono.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+    </script>
 </body>
 </html>

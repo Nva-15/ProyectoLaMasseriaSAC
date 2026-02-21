@@ -3,6 +3,7 @@ package com.masseria.service;
 import com.masseria.entity.Usuario;
 import com.masseria.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -15,6 +16,9 @@ public class UsuarioService {
     
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     
     public List<Usuario> obtenerTodos() {
         return usuarioRepository.findAll();
@@ -142,5 +146,42 @@ public class UsuarioService {
                     return usuarioRepository.save(usuario);
                 })
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
+    }
+
+    public Usuario actualizarDatos(Long id, String nombres, String apellidos, String email,
+                                   String telefono, String direccion, String dni,
+                                   String nuevaPassword) {
+        Usuario usuario = obtenerPorId(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con ID: " + id));
+
+        // Validar email único si cambió
+        if (email != null && !email.trim().isEmpty() && !email.equalsIgnoreCase(usuario.getEmail())) {
+            if (usuarioRepository.existsByEmail(email.trim())) {
+                throw new IllegalArgumentException("Ya existe un usuario con el email: " + email);
+            }
+            usuario.setEmail(email.trim());
+            usuario.setUsername(email.trim());
+        }
+
+        // Validar DNI único si cambió
+        if (dni != null && !dni.trim().isEmpty() && !dni.trim().equalsIgnoreCase(usuario.getDni())) {
+            if (usuarioRepository.existsByDni(dni.trim())) {
+                throw new IllegalArgumentException("Ya existe un usuario con el DNI: " + dni);
+            }
+            usuario.setDni(dni.trim());
+        } else if (dni != null && dni.trim().isEmpty()) {
+            usuario.setDni(null);
+        }
+
+        if (nombres  != null) usuario.setNombres(nombres.trim().isEmpty() ? null : nombres.trim());
+        if (apellidos != null) usuario.setApellidos(apellidos.trim().isEmpty() ? null : apellidos.trim());
+        if (telefono != null) usuario.setTelefono(telefono.trim().isEmpty() ? null : telefono.trim());
+        if (direccion != null) usuario.setDireccion(direccion.trim().isEmpty() ? null : direccion.trim());
+
+        if (nuevaPassword != null && !nuevaPassword.trim().isEmpty()) {
+            usuario.setPassword(passwordEncoder.encode(nuevaPassword.trim()));
+        }
+
+        return usuarioRepository.save(usuario);
     }
 }

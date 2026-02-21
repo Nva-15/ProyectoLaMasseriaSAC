@@ -78,23 +78,25 @@
             </div>
         </div>
 
-        <!-- ===== FILTROS (client-side) ===== -->
+        <!-- ===== FILTROS ===== -->
         <div class="row px-xl-5 mb-4">
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-light" style="border-left: 4px solid #6c757d;">
-                        <h6 class="mb-0 text-muted"><i class="fa fa-search mr-2"></i>Buscar y Filtrar Usuarios</h6>
+                        <h6 class="mb-0 text-muted"><i class="fa fa-filter mr-2"></i>Filtros de Usuarios</h6>
                     </div>
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-md-5 mb-2">
-                                <label class="small text-muted mb-1">Buscar por nombre, email o DNI</label>
+                    <div class="card-body pb-2">
+
+                        <!-- Fila 1: búsqueda client-side -->
+                        <div class="row mb-2">
+                            <div class="col-md-6">
+                                <label class="small text-muted mb-1">Buscar en los usuarios cargados</label>
                                 <div class="input-group input-group-sm">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text"><i class="fa fa-search"></i></span>
                                     </div>
                                     <input type="text" class="form-control" id="buscarUsuario"
-                                           placeholder="Nombre completo, email o DNI..."
+                                           placeholder="Nombre, email o DNI..."
                                            oninput="filtrarUsuarios()">
                                     <div class="input-group-append">
                                         <button class="btn btn-outline-secondary btn-sm" type="button"
@@ -104,27 +106,63 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-2">
-                                <label class="small text-muted mb-1">Estado de la cuenta</label>
-                                <div class="btn-group btn-group-sm d-block" role="group">
-                                    <button type="button" class="btn btn-outline-secondary active"
-                                            id="btnTodos" onclick="setFiltroEstado('todos')">
-                                        <i class="fa fa-users mr-1"></i>Todos
-                                    </button>
-                                    <button type="button" class="btn btn-outline-success"
-                                            id="btnActivos" onclick="setFiltroEstado('activo')">
-                                        <i class="fa fa-user-check mr-1"></i>Activos
-                                    </button>
-                                    <button type="button" class="btn btn-outline-danger"
-                                            id="btnInactivos" onclick="setFiltroEstado('inactivo')">
-                                        <i class="fa fa-user-slash mr-1"></i>Inactivos
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="col-md-3 mb-2 text-muted">
-                                <small><i class="fa fa-info-circle mr-1"></i>Mostrando:
-                                    <span id="contadorVisible">todos los usuarios</span>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <small class="text-muted">
+                                    <i class="fa fa-info-circle mr-1"></i>
+                                    Clientes visibles: <span id="contadorVisible" class="font-weight-bold">[[${#lists.size(clientes)}]]</span>
+                                    &nbsp;|&nbsp; Cargados: <strong>[[${#lists.size(clientes)}]]</strong>
+                                    &nbsp;|&nbsp; Total en BD: <strong>[[${totalClientesAll}]]</strong>
+                                    <span th:if="${#lists.size(clientes) < totalClientesAll}"
+                                          class="badge badge-warning ml-1">
+                                        +[[${totalClientesAll - #lists.size(clientes)}]] sin cargar
+                                    </span>
                                 </small>
+                            </div>
+                        </div>
+
+                        <!-- Fila 2: filtros server-side -->
+                        <div class="border-top pt-2">
+                            <small class="text-muted d-block mb-1 font-weight-bold">Estado:</small>
+                            <div class="btn-group btn-group-sm mr-3" role="group">
+                                <a th:href="@{/admin/usuarios(estadoFiltro='activos', limite=${limite})}"
+                                   class="btn btn-outline-success"
+                                   th:classappend="${estadoFiltro == 'activos' ? ' active' : ''}">
+                                    <i class="fa fa-user-check mr-1"></i>Solo Activos
+                                </a>
+                                <a th:href="@{/admin/usuarios(estadoFiltro='inactivos', limite=${limite})}"
+                                   class="btn btn-outline-danger"
+                                   th:classappend="${estadoFiltro == 'inactivos' ? ' active' : ''}">
+                                    <i class="fa fa-user-slash mr-1"></i>Solo Inactivos
+                                </a>
+                                <a th:href="@{/admin/usuarios(estadoFiltro='todos', limite=${limite})}"
+                                   class="btn btn-outline-secondary"
+                                   th:classappend="${estadoFiltro == 'todos' ? ' active' : ''}">
+                                    <i class="fa fa-users mr-1"></i>Todos
+                                </a>
+                            </div>
+
+                            <small class="text-muted d-inline-block ml-1 mr-1 font-weight-bold">Mostrar:</small>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a th:href="@{/admin/usuarios(estadoFiltro=${estadoFiltro}, limite='10')}"
+                                   class="btn btn-outline-secondary"
+                                   th:classappend="${limite == '10' || limite == null ? ' active' : ''}">
+                                    Últimos 10
+                                </a>
+                                <a th:href="@{/admin/usuarios(estadoFiltro=${estadoFiltro}, limite='50')}"
+                                   class="btn btn-outline-secondary"
+                                   th:classappend="${limite == '50' ? ' active' : ''}">
+                                    Últimos 50
+                                </a>
+                                <a th:href="@{/admin/usuarios(estadoFiltro=${estadoFiltro}, limite='200')}"
+                                   class="btn btn-outline-secondary"
+                                   th:classappend="${limite == '200' ? ' active' : ''}">
+                                    200
+                                </a>
+                                <a th:href="@{/admin/usuarios(estadoFiltro=${estadoFiltro}, limite='todos')}"
+                                   class="btn btn-outline-secondary"
+                                   th:classappend="${limite == 'todos' ? ' active' : ''}">
+                                    <i class="fa fa-list mr-1"></i>Todos
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -146,7 +184,7 @@
                             <table class="table table-hover mb-0" id="tablaAdmins">
                                 <thead class="thead-dark">
                                     <tr>
-                                        <th class="px-3">#ID</th>
+                                        <th class="px-3 text-center">#</th>
                                         <th>Nombre</th>
                                         <th>Email</th>
                                         <th>DNI</th>
@@ -157,10 +195,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="usr : ${admins}"
+                                    <tr th:each="usr, usrStat : ${admins}"
                                         th:classappend="${!usr.activo ? 'table-secondary' : ''}"
                                         th:attr="data-search=${usr.nombreCompleto + ' ' + usr.email + ' ' + (usr.dni ?: '')},data-activo=${usr.activo}">
-                                        <td class="px-3 font-weight-bold" th:text="${usr.id}">1</td>
+                                        <td class="px-3 text-center text-muted" th:text="${usrStat.count}">1</td>
                                         <td>
                                             <i class="fa fa-user-shield text-danger mr-1"></i>
                                             <span th:text="${usr.nombreCompleto}">Nombre</span>
@@ -175,6 +213,10 @@
                                         <td th:text="${usr.ultimoAcceso != null ? #temporals.format(usr.ultimoAcceso, 'dd/MM/yyyy HH:mm') : 'Nunca'}">-</td>
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm">
+                                                <a th:href="@{'/admin/usuarios/' + ${usr.id} + '/editar'}"
+                                                   class="btn btn-sm text-white mr-1" style="background: #c49b63;" title="Editar usuario">
+                                                    <i class="fa fa-edit"></i>
+                                                </a>
                                                 <form th:action="@{'/admin/usuarios/' + ${usr.id} + '/rol'}" method="post" class="d-inline">
                                                     <input type="hidden" name="rol" value="CLIENTE">
                                                     <button type="submit" class="btn btn-sm btn-outline-primary" title="Cambiar a Cliente"
@@ -220,7 +262,7 @@
                             <table class="table table-hover mb-0" id="tablaClientes">
                                 <thead class="thead-dark">
                                     <tr>
-                                        <th class="px-3">#ID</th>
+                                        <th class="px-3 text-center">#</th>
                                         <th>Nombre</th>
                                         <th>Email</th>
                                         <th>DNI</th>
@@ -233,10 +275,10 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr th:each="usr : ${clientes}"
+                                    <tr th:each="usr, usrStat : ${clientes}"
                                         th:classappend="${!usr.activo ? 'table-secondary' : ''}"
                                         th:attr="data-search=${usr.nombreCompleto + ' ' + usr.email + ' ' + (usr.dni ?: '')},data-activo=${usr.activo}">
-                                        <td class="px-3 font-weight-bold" th:text="${usr.id}">1</td>
+                                        <td class="px-3 text-center text-muted" th:text="${usrStat.count}">1</td>
                                         <td>
                                             <i class="fa fa-user text-primary mr-1"></i>
                                             <span th:text="${usr.nombreCompleto}">Nombre</span>
@@ -254,6 +296,10 @@
                                         <td th:text="${usr.ultimoAcceso != null ? #temporals.format(usr.ultimoAcceso, 'dd/MM/yyyy HH:mm') : 'Nunca'}">-</td>
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm">
+                                                <a th:href="@{'/admin/usuarios/' + ${usr.id} + '/editar'}"
+                                                   class="btn btn-sm text-white mr-1" style="background: #c49b63;" title="Editar usuario">
+                                                    <i class="fa fa-edit"></i>
+                                                </a>
                                                 <form th:action="@{'/admin/usuarios/' + ${usr.id} + '/rol'}" method="post" class="d-inline">
                                                     <input type="hidden" name="rol" value="ADMIN">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger" title="Hacer Administrador"
@@ -291,19 +337,8 @@
     <div th:replace="~{base :: floating-buttons}"></div>
 
     <script>
-        var filtroEstadoActual = 'todos';
-
-        function setFiltroEstado(estado) {
-            filtroEstadoActual = estado;
-            document.getElementById('btnTodos').classList.toggle('active',    estado === 'todos');
-            document.getElementById('btnActivos').classList.toggle('active',  estado === 'activo');
-            document.getElementById('btnInactivos').classList.toggle('active', estado === 'inactivo');
-            filtrarUsuarios();
-        }
-
         function filtrarUsuarios() {
             var q = (document.getElementById('buscarUsuario').value || '').toLowerCase().trim();
-            var totalVisible = 0;
             var visiblesAdmins = 0;
             var visiblesClientes = 0;
 
@@ -311,30 +346,21 @@
                 var esAdmins = tablaId === 'tablaAdmins';
                 var rows = document.querySelectorAll('#' + tablaId + ' tbody tr[data-search]');
                 rows.forEach(function(row) {
-                    var texto  = (row.getAttribute('data-search') || '').toLowerCase();
-                    var activo = row.getAttribute('data-activo');
-
-                    var matchTexto  = q === '' || texto.includes(q);
-                    var matchEstado = filtroEstadoActual === 'todos'
-                                  || (filtroEstadoActual === 'activo'   && activo === 'true')
-                                  || (filtroEstadoActual === 'inactivo' && activo === 'false');
-
-                    var mostrar = matchTexto && matchEstado;
+                    var texto   = (row.getAttribute('data-search') || '').toLowerCase();
+                    var mostrar = q === '' || texto.includes(q);
                     row.style.display = mostrar ? '' : 'none';
                     if (mostrar) {
-                        totalVisible++;
                         if (esAdmins) visiblesAdmins++; else visiblesClientes++;
                     }
                 });
             });
 
-            // Actualizar badges
-            var badgeAdmins   = document.getElementById('badgeAdmins');
-            var badgeClientes = document.getElementById('badgeClientes');
-            var contador      = document.getElementById('contadorVisible');
-            if (badgeAdmins)   badgeAdmins.textContent   = visiblesAdmins   + ' administradores';
-            if (badgeClientes) badgeClientes.textContent = visiblesClientes + ' clientes';
-            if (contador)      contador.textContent      = totalVisible + ' usuario(s)';
+            var badgeAdmins    = document.getElementById('badgeAdmins');
+            var badgeClientes  = document.getElementById('badgeClientes');
+            var contadorVisible = document.getElementById('contadorVisible');
+            if (badgeAdmins)     badgeAdmins.textContent    = visiblesAdmins   + ' administradores';
+            if (badgeClientes)   badgeClientes.textContent  = visiblesClientes + ' clientes';
+            if (contadorVisible) contadorVisible.textContent = visiblesClientes;
         }
     </script>
 </body>

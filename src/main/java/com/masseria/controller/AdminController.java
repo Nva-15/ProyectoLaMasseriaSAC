@@ -418,13 +418,51 @@ public class AdminController {
     // ==================== USUARIOS ====================
 
     @GetMapping("/usuarios")
-    public String listarUsuarios(HttpSession session, Model model, RedirectAttributes redirectAttributes) {
+    public String listarUsuarios(HttpSession session, Model model, RedirectAttributes redirectAttributes,
+            @RequestParam(required = false) String estadoFiltro,
+            @RequestParam(required = false) String limite) {
         String redirect = verificarAdmin(session, redirectAttributes);
         if (redirect != null) return redirect;
 
-        model.addAttribute("activePage", "admin-usuarios");
-        model.addAttribute("admins", usuarioService.obtenerPorRol("ADMIN"));
-        model.addAttribute("clientes", usuarioService.obtenerPorRol("CLIENTE"));
+        // Defaults: solo activos, últimos 10
+        String estado = (estadoFiltro != null && !estadoFiltro.isEmpty()) ? estadoFiltro : "activos";
+        int limiteNum  = "todos".equals(limite) ? Integer.MAX_VALUE
+                       : "200".equals(limite)   ? 200
+                       : "50".equals(limite)    ? 50
+                       : 10; // default
+
+        Boolean fActivo = "activos".equals(estado)   ? Boolean.TRUE
+                        : "inactivos".equals(estado) ? Boolean.FALSE
+                        : null; // "todos"
+
+        // Admins: todos siempre (suelen ser pocos)
+        List<Usuario> admins = usuarioService.obtenerPorRol("ADMIN").stream()
+                .filter(u -> fActivo == null || fActivo.equals(u.getActivo()))
+                .sorted(Comparator.comparing(Usuario::getFechaRegistro,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
+
+        // Total real de clientes sin aplicar filtro de estado (para el denominador del contador)
+        List<Usuario> todosClientesSinFiltro = usuarioService.obtenerPorRol("CLIENTE");
+        long totalClientesAll = todosClientesSinFiltro.size();
+
+        // Clientes: filtro estado + límite, ordenados por registro DESC
+        List<Usuario> todosClientesFiltrados = todosClientesSinFiltro.stream()
+                .filter(u -> fActivo == null || fActivo.equals(u.getActivo()))
+                .sorted(Comparator.comparing(Usuario::getFechaRegistro,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
+
+        List<Usuario> clientes = limiteNum < todosClientesFiltrados.size()
+                ? todosClientesFiltrados.subList(0, limiteNum)
+                : todosClientesFiltrados;
+
+        model.addAttribute("activePage",       "admin-usuarios");
+        model.addAttribute("admins",           admins);
+        model.addAttribute("clientes",         clientes);
+        model.addAttribute("totalClientesAll", totalClientesAll);
+        model.addAttribute("estadoFiltro",     estado);
+        model.addAttribute("limite",           limite != null ? limite : "10");
         return "admin/usuarios";
     }
 
@@ -454,6 +492,53 @@ public class AdminController {
             redirectAttributes.addFlashAttribute("mensaje", activo ? "Usuario activado" : "Usuario desactivado");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
+        }
+        return "redirect:/admin/usuarios";
+    }
+
+    @GetMapping("/usuarios/{id}/editar")
+    public String editarUsuario(@PathVariable Long id, HttpSession session, Model model,
+                                 RedirectAttributes redirectAttributes) {
+        String redirect = verificarAdmin(session, redirectAttributes);
+        if (redirect != null) return redirect;
+
+        return usuarioService.obtenerPorId(id)
+                .map(usuario -> {
+                    model.addAttribute("activePage", "admin-usuarios");
+                    model.addAttribute("usuario", usuario);
+                    return "admin/usuario-form";
+                })
+                .orElseGet(() -> {
+                    redirectAttributes.addFlashAttribute("error", "Usuario no encontrado");
+                    return "redirect:/admin/usuarios";
+                });
+    }
+
+    @PostMapping("/usuarios/{id}/editar")
+    public String guardarEdicionUsuario(@PathVariable Long id,
+                                         @RequestParam(required = false) String nombres,
+                                         @RequestParam(required = false) String apellidos,
+                                         @RequestParam(required = false) String email,
+                                         @RequestParam(required = false) String telefono,
+                                         @RequestParam(required = false) String direccion,
+                                         @RequestParam(required = false) String dni,
+                                         @RequestParam(required = false) String nuevaPassword,
+                                         @RequestParam(required = false) String confirmarPassword,
+                                         RedirectAttributes redirectAttributes, HttpSession session) {
+        String redirect = verificarAdmin(session, redirectAttributes);
+        if (redirect != null) return redirect;
+
+        try {
+            if (nuevaPassword != null && !nuevaPassword.trim().isEmpty()
+                    && !nuevaPassword.equals(confirmarPassword)) {
+                redirectAttributes.addFlashAttribute("error", "Las contraseñas no coinciden");
+                return "redirect:/admin/usuarios/" + id + "/editar";
+            }
+            usuarioService.actualizarDatos(id, nombres, apellidos, email, telefono, direccion, dni, nuevaPassword);
+            redirectAttributes.addFlashAttribute("mensaje", "Usuario actualizado exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
+            return "redirect:/admin/usuarios/" + id + "/editar";
         }
         return "redirect:/admin/usuarios";
     }

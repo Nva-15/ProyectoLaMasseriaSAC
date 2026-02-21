@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{base :: head}">
+    <meta charset="utf-8">
+    <title>Admin - Editar Usuario</title>
+</head>
+<body>
+    <div th:replace="~{base :: navbar}"></div>
+
+    <div class="container-fluid page-header mb-5 position-relative overlay-bottom">
+        <div class="d-flex flex-column align-items-center justify-content-center pt-0 pt-lg-5" style="min-height: 400px">
+            <h1 class="display-4 mb-3 mt-0 mt-lg-5 text-white text-uppercase">Editar Usuario</h1>
+            <div class="d-inline-flex mb-lg-5">
+                <p class="m-0 text-white"><a class="text-white" href="/">Inicio</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white"><a class="text-white" href="/admin">Admin</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white"><a class="text-white" href="/admin/usuarios">Usuarios</a></p>
+                <p class="m-0 text-white px-2">/</p>
+                <p class="m-0 text-white">Editar</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container pt-5 pb-5" style="max-width: 760px;">
+
+        <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa fa-check-circle mr-2"></i>[[${mensaje}]]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fa fa-exclamation-circle mr-2"></i>[[${error}]]
+            <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-header d-flex justify-content-between align-items-center text-white" style="background: #c49b63;">
+                <h5 class="mb-0">
+                    <i class="fa fa-user-edit mr-2"></i>
+                    Editando: <span th:text="${usuario.getNombreCompleto() != ' ' ? usuario.getNombreCompleto() : usuario.email}">Usuario</span>
+                </h5>
+                <span class="badge badge-light" th:text="'ID #' + ${usuario.id}">ID</span>
+            </div>
+            <div class="card-body">
+
+                <form th:action="@{'/admin/usuarios/' + ${usuario.id} + '/editar'}" method="post" id="formEditarUsuario">
+
+                    <!-- Info del usuario -->
+                    <div class="alert alert-light border mb-4 py-2 px-3">
+                        <small class="text-muted">
+                            <i class="fa fa-info-circle mr-1"></i>
+                            Rol: <strong th:text="${usuario.rol}">CLIENTE</strong> &nbsp;|&nbsp;
+                            Registrado: <strong th:text="${#temporals.format(usuario.fechaRegistro, 'dd/MM/yyyy')}">-</strong> &nbsp;|&nbsp;
+                            Estado: <span class="badge" th:classappend="${usuario.activo ? 'badge-success' : 'badge-danger'}"
+                                          th:text="${usuario.activo ? 'Activo' : 'Inactivo'}">Activo</span>
+                        </small>
+                    </div>
+
+                    <!-- ===== DATOS PERSONALES ===== -->
+                    <h6 class="text-muted font-weight-bold mb-3 border-bottom pb-2">
+                        <i class="fa fa-id-card mr-1"></i> Datos Personales
+                    </h6>
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label class="small font-weight-bold text-muted">Nombres</label>
+                            <input type="text" class="form-control" name="nombres"
+                                   th:value="${usuario.nombres}" placeholder="Nombres del usuario">
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="small font-weight-bold text-muted">Apellidos</label>
+                            <input type="text" class="form-control" name="apellidos"
+                                   th:value="${usuario.apellidos}" placeholder="Apellidos del usuario">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 form-group">
+                            <label class="small font-weight-bold text-muted">DNI</label>
+                            <input type="text" class="form-control" name="dni"
+                                   th:value="${usuario.dni}" placeholder="12345678" maxlength="8">
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label class="small font-weight-bold text-muted">Teléfono</label>
+                            <input type="text" class="form-control" name="telefono"
+                                   th:value="${usuario.telefono}" placeholder="9XXXXXXXX">
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <!-- espacio -->
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="small font-weight-bold text-muted">Dirección</label>
+                        <input type="text" class="form-control" name="direccion"
+                               th:value="${usuario.direccion}" placeholder="Dirección del usuario">
+                    </div>
+
+                    <!-- ===== DATOS DE ACCESO ===== -->
+                    <h6 class="text-muted font-weight-bold mb-3 border-bottom pb-2 mt-4">
+                        <i class="fa fa-lock mr-1"></i> Datos de Acceso
+                    </h6>
+                    <div class="form-group">
+                        <label class="small font-weight-bold text-muted">Email / Usuario de acceso</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="fa fa-envelope"></i></span>
+                            </div>
+                            <input type="email" class="form-control" name="email"
+                                   th:value="${usuario.email}" required placeholder="correo@ejemplo.com">
+                        </div>
+                        <small class="form-text text-muted">Si se cambia el email, también se actualizará el nombre de usuario.</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 form-group">
+                            <label class="small font-weight-bold text-muted">Nueva contraseña</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-key"></i></span>
+                                </div>
+                                <input type="password" class="form-control" name="nuevaPassword" id="nuevaPassword"
+                                       placeholder="Dejar vacío para no cambiar" autocomplete="new-password">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="togglePass('nuevaPassword', this)">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label class="small font-weight-bold text-muted">Confirmar contraseña</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-key"></i></span>
+                                </div>
+                                <input type="password" class="form-control" name="confirmarPassword" id="confirmarPassword"
+                                       placeholder="Repetir nueva contraseña" autocomplete="new-password">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="togglePass('confirmarPassword', this)">
+                                        <i class="fa fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="alertaPassword" class="alert alert-danger py-1 small d-none">
+                        <i class="fa fa-exclamation-circle mr-1"></i> Las contraseñas no coinciden.
+                    </div>
+
+                    <!-- ===== BOTONES ===== -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="/admin/usuarios" class="btn btn-outline-secondary">
+                            <i class="fa fa-arrow-left mr-1"></i>Volver a Usuarios
+                        </a>
+                        <button type="submit" class="btn text-white" style="background: #c49b63;">
+                            <i class="fa fa-save mr-1"></i>Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{base :: footer}"></div>
+    <div th:replace="~{base :: scripts}"></div>
+    <div th:replace="~{base :: floating-buttons}"></div>
+
+    <script>
+        function togglePass(fieldId, btn) {
+            var input = document.getElementById(fieldId);
+            var icon  = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // Validación en tiempo real de contraseñas
+        var np = document.getElementById('nuevaPassword');
+        var cp = document.getElementById('confirmarPassword');
+        var alerta = document.getElementById('alertaPassword');
+
+        function checkPasswords() {
+            if (np.value && cp.value && np.value !== cp.value) {
+                alerta.classList.remove('d-none');
+            } else {
+                alerta.classList.add('d-none');
+            }
+        }
+        np.addEventListener('input', checkPasswords);
+        cp.addEventListener('input', checkPasswords);
+
+        // Bloquear submit si contraseñas no coinciden
+        document.getElementById('formEditarUsuario').addEventListener('submit', function(e) {
+            if (np.value && cp.value && np.value !== cp.value) {
+                e.preventDefault();
+                alerta.classList.remove('d-none');
+                cp.focus();
+            }
+        });
+    </script>
+</body>
+</html>

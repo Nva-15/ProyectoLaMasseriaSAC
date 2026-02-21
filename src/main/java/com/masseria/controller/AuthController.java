@@ -11,6 +11,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Controller
 public class AuthController {
@@ -104,13 +105,91 @@ public class AuthController {
     }
     
     @GetMapping("/perfil")
-    public String perfil(HttpSession session, Model model) {
+    public String perfil(HttpSession session, Model model,
+                         @RequestParam(required = false) String tab) {
         Usuario usuario = (Usuario) session.getAttribute("usuario");
-        if (usuario == null) {
-            return "redirect:/login";
+        if (usuario == null) return "redirect:/login";
+
+        // Recargar desde BD para tener datos frescos
+        Optional<Usuario> fresh = usuarioRepository.findById(usuario.getId());
+        if (fresh.isPresent()) {
+            session.setAttribute("usuario", fresh.get());
+            usuario = fresh.get();
         }
+
         model.addAttribute("usuario", usuario);
+        model.addAttribute("tab", tab != null ? tab : "info");
         model.addAttribute("activePage", "perfil");
         return "perfil";
+    }
+
+    @PostMapping("/perfil/editar")
+    public String editarPerfil(HttpSession session,
+            @RequestParam(required = false) String nombres,
+            @RequestParam(required = false) String apellidos,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String telefono,
+            @RequestParam(required = false) String direccion,
+            @RequestParam(required = false) String dni,
+            @RequestParam(required = false) String nuevaPassword,
+            @RequestParam(required = false) String confirmarPassword,
+            RedirectAttributes redirectAttributes) {
+
+        Usuario usuario = (Usuario) session.getAttribute("usuario");
+        if (usuario == null) return "redirect:/login";
+
+        if (nuevaPassword != null && !nuevaPassword.trim().isEmpty()
+                && !nuevaPassword.equals(confirmarPassword)) {
+            redirectAttributes.addFlashAttribute("error", "Las contraseñas no coinciden");
+            return "redirect:/perfil?editar=true";
+        }
+
+        try {
+            Usuario u = usuarioRepository.findById(usuario.getId())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            // Email único si cambió
+            if (email != null && !email.trim().isEmpty()
+                    && !email.trim().equalsIgnoreCase(u.getEmail())) {
+                if (usuarioRepository.existsByEmail(email.trim())) {
+                    redirectAttributes.addFlashAttribute("error", "Ese email ya está registrado por otro usuario");
+                    return "redirect:/perfil?editar=true";
+                }
+                u.setEmail(email.trim());
+                u.setUsername(email.trim());
+            }
+
+            // DNI único si cambió
+            if (dni != null && !dni.trim().isEmpty()
+                    && !dni.trim().equals(u.getDni())) {
+                if (usuarioRepository.existsByDni(dni.trim())) {
+                    redirectAttributes.addFlashAttribute("error", "Ese DNI ya está registrado por otro usuario");
+                    return "redirect:/perfil?editar=true";
+                }
+                u.setDni(dni.trim());
+            } else if (dni != null && dni.trim().isEmpty()) {
+                u.setDni(null);
+            }
+
+            if (nombres   != null) u.setNombres(nombres.trim().isEmpty()   ? null : nombres.trim());
+            if (apellidos != null) u.setApellidos(apellidos.trim().isEmpty() ? null : apellidos.trim());
+            if (telefono  != null) u.setTelefono(telefono.trim().isEmpty()  ? null : telefono.trim());
+            if (direccion != null) u.setDireccion(direccion.trim().isEmpty() ? null : direccion.trim());
+
+            if (nuevaPassword != null && !nuevaPassword.trim().isEmpty()) {
+                u.setPassword(passwordEncoder.encode(nuevaPassword.trim()));
+            }
+
+            Usuario actualizado = usuarioRepository.save(u);
+            session.setAttribute("usuario", actualizado);
+            session.setAttribute("usuarioNombre",
+                    actualizado.getNombres() + " " + actualizado.getApellidos());
+
+            redirectAttributes.addFlashAttribute("mensaje", "Perfil actualizado exitosamente");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al actualizar: " + e.getMessage());
+            return "redirect:/perfil?editar=true";
+        }
+        return "redirect:/perfil";
     }
 }
